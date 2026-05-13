@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RestroRx — by Chef Amey Marathe</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ember:#E8490A;--ember-d:rgba(232,73,10,0.13);
+  --gold:#B8851F;--gold-d:rgba(184,133,31,0.13);
+  --green:#1A9E5A;--green-d:rgba(26,158,90,0.12);
+  --yellow:#C67E0A;--yellow-d:rgba(198,126,10,0.12);
+  --red:#C0392B;--red-d:rgba(192,57,43,0.12);
+  --cal:#006BFF;--cal-d:rgba(0,107,255,0.12);
+  --wa:#25D366;
+  --bg:#0C0C0C;--s1:#151515;--s2:#1D1D1D;--br:#272727;
+  --t1:#EFEBE5;--t2:#9A9490;--t3:#5C5855;
+  --ff:'Outfit',sans-serif;--fd:'Cormorant Garamond',serif
+}
+body{font-family:var(--ff);background:var(--bg);color:var(--t1);min-height:100vh}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes shimmer{0%{background-position:-300% center}100%{background-position:300% center}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes glow{0%,100%{box-shadow:0 0 20px rgba(232,73,10,.25)}50%{box-shadow:0 0 40px rgba(232,73,10,.5)}}
+.fi{animation:fadeIn .35s ease both}
+.shimmer{background:linear-gradient(90deg,var(--t1) 0%,#C9922A 45%,var(--t1) 90%);background-size:300% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:shimmer 3s linear infinite}
+input,textarea,select{font-family:var(--ff);background:var(--s2);border:1px solid var(--br);color:var(--t1);border-radius:9px;padding:12px 15px;font-size:14px;width:100%;outline:none;transition:border .2s,box-shadow .2s;-webkit-appearance:none}
+input::placeholder,textarea::placeholder{color:var(--t3)}
+input:focus,textarea:focus,select:focus{border-color:var(--ember);box-shadow:0 0 0 3px var(--ember-d)}
+textarea{resize:none}
+select option{background:#1D1D1D}
+.btn{background:var(--ember);color:#fff;border:none;border-radius:11px;padding:16px 36px;font-family:var(--ff);font-size:15px;font-weight:600;cursor:pointer;transition:transform .15s,opacity .15s;box-shadow:0 4px 22px rgba(232,73,10,.38);width:100%}
+.btn:hover{transform:translateY(-2px);opacity:.92}
+.btn-cal{background:var(--cal);color:#fff;border:none;border-radius:11px;padding:16px 36px;font-family:var(--ff);font-size:15px;font-weight:600;cursor:pointer;width:100%;display:flex;align-items:center;justify-content:center;gap:10px;text-decoration:none;transition:transform .15s,opacity .15s;box-shadow:0 4px 22px rgba(0,107,255,.35)}
+.btn-cal:hover{transform:translateY(-2px);opacity:.92}
+.btn-wa{background:var(--wa);color:#fff;border:none;border-radius:11px;padding:16px 36px;font-family:var(--ff);font-size:15px;font-weight:600;cursor:pointer;width:100%;display:flex;align-items:center;justify-content:center;gap:10px;text-decoration:none;transition:transform .15s,opacity .15s;box-shadow:0 4px 22px rgba(37,211,102,.35)}
+.btn-wa:hover{transform:translateY(-2px);opacity:.92}
+.ghost{background:transparent;color:var(--t2);border:1px solid var(--br);border-radius:11px;padding:13px;font-family:var(--ff);font-size:14px;cursor:pointer;width:100%;transition:border .2s,color .2s}
+.ghost:hover{border-color:var(--t2);color:var(--t1)}
+.card{background:var(--s1);border:1px solid var(--br);border-radius:16px;padding:24px;margin-bottom:13px}
+.lbl{display:block;font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:2px;margin-bottom:7px}
+.sec{font-size:10px;font-weight:700;color:var(--ember);text-transform:uppercase;letter-spacing:2.5px;margin-bottom:18px;display:flex;align-items:center;gap:10px}
+.sec::after{content:'';flex:1;height:1px;background:var(--br)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+@media(max-width:480px){.g2{grid-template-columns:1fr}}
+.tag{display:inline-flex;align-items:center;gap:6px;border-radius:20px;padding:5px 13px;font-size:11px;font-weight:600;letter-spacing:.8px}
+.ac{background:var(--s2);border:1px solid var(--br);border-radius:13px;padding:17px;margin-bottom:10px}
+.fr{display:flex;gap:12px;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--br)}
+.fr:last-child{border-bottom:none;padding-bottom:0}
+.fld{margin-bottom:13px}
+.upload-zone{border:2px dashed var(--br);border-radius:12px;padding:24px 20px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s}
+.upload-zone:hover{border-color:var(--ember);background:var(--ember-d)}
+.upload-zone.has-file{border-color:var(--green);background:var(--green-d)}
+.score-tab{background:var(--s2);border:1px solid var(--br);border-radius:10px;padding:12px;text-align:center;flex:1}
+.load-step{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--br);font-size:14px;color:var(--t3);transition:color .3s}
+.load-step:last-child{border-bottom:none}
+.load-step.active{color:var(--t1)}.load-step.done{color:var(--green)}
+.step-dot{width:8px;height:8px;border-radius:50%;background:var(--br);flex-shrink:0;transition:background .3s}
+.load-step.active .step-dot{background:var(--ember);animation:pulse 1s infinite}
+.load-step.done .step-dot{background:var(--green)}
+.bar-wrap{height:6px;border-radius:3px;background:var(--br);margin-top:8px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;width:0%;transition:width 1.2s ease}
+.stage-pill{display:flex;gap:0;background:var(--s2);border:1px solid var(--br);border-radius:30px;padding:4px;margin-bottom:24px;max-width:320px}
+.stage-dot{flex:1;padding:8px 16px;border-radius:24px;text-align:center;font-size:12px;font-weight:600;color:var(--t3);transition:all .3s}
+.stage-dot.active{background:var(--ember);color:#fff}
+.stage-dot.done{color:var(--green)}
+.unlock-card{background:linear-gradient(135deg,#1a0e08,#0f1a0e);border:1px solid rgba(232,73,10,.3);border-radius:18px;padding:28px;margin-bottom:13px;animation:glow 3s ease infinite}
+.lead-gate{background:var(--s1);border:1px solid rgba(232,73,10,.3);border-radius:20px;padding:32px 24px;text-align:center;margin-bottom:13px}
+.region-badge{display:inline-flex;align-items:center;gap:6px;background:var(--s2);border:1px solid var(--br);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:600;color:var(--t2)}
+</style>
+</head>
+<body>
+
+<script>
+// ════════════════════════════════════
+// CONFIGURATION — REPLACE THESE
+// ════════════════════════════════════
+const SUPABASE_URL   = 'https://dduiwrznrzmimqvmrcdg.supabase.co';      // e.g. https://xyzxyz.supabase.co
+const SUPABASE_KEY   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkdWl3cnpucnptaW1xdm1yY2RnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1MjY5NjAsImV4cCI6MjA5NDEwMjk2MH0.1-rjDnGkykflVZWnaHLGk1-b_oFqP1LX4dwb3Ro9IpY'; // from Settings > API > anon key
+const CHEF_WA        = '918806808949';
+const CALENDLY       = 'https://calendly.com/chefameymarathe';
+const FORMSPREE_ID   = 'xpwzgvkd';
+// ════════════════════════════════════
+</script>
+
+<nav style="border-bottom:1px solid var(--br);padding:13px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;background:rgba(12,12,12,.95);backdrop-filter:blur(16px)">
+  <div style="display:flex;align-items:center;gap:9px">
+    <div style="width:32px;height:32px;background:var(--ember);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px">🍽️</div>
+    <div>
+      <div style="font-family:var(--fd);font-weight:700;font-size:18px;letter-spacing:-.2px">RestroRx</div>
+      <div style="font-size:9px;color:var(--t3);letter-spacing:2.5px;text-transform:uppercase">by Chef Amey Marathe</div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px">
+    <div id="nav-region" class="region-badge"></div>
+    <span class="tag" style="background:var(--ember-d);border:1px solid rgba(232,73,10,.22);color:var(--ember);font-size:10px">
+      <span style="width:5px;height:5px;border-radius:50%;background:var(--ember);display:inline-block"></span>
+      GLOBAL
+    </span>
+  </div>
+</nav>
+
+<div style="max-width:640px;margin:0 auto;padding-bottom:60px">
+
+  <!-- INTRO -->
+  <div id="screen-intro" style="display:none;text-align:center;padding:36px 20px">
+    <div class="tag" style="background:var(--ember-d);border:1px solid rgba(232,73,10,.22);color:var(--ember);margin-bottom:28px;font-size:10px">
+      <span style="width:5px;height:5px;border-radius:50%;background:var(--ember);display:inline-block"></span>
+      THE WORLD'S MOST ADVANCED RESTAURANT DIAGNOSTICS
+    </div>
+    <h1 style="font-family:var(--fd);font-size:clamp(36px,8vw,62px);font-weight:700;line-height:1.06;letter-spacing:-.5px;margin-bottom:16px">
+      Is Your Restaurant<br><span class="shimmer">Truly Healthy?</span>
+    </h1>
+    <p style="font-size:15px;color:var(--t2);line-height:1.75;max-width:460px;margin:0 auto 14px">Get your restaurant's health score in 3 minutes. Powered by Chef Amey Marathe's 20-year global consulting framework.</p>
+    <div id="intro-region-tag" style="margin-bottom:36px"></div>
+    <div style="background:var(--s1);border:1px solid var(--br);border-radius:14px;padding:20px;max-width:400px;margin:0 auto 32px;text-align:left">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+        <div style="width:44px;height:44px;background:var(--ember);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">👨‍🍳</div>
+        <div><div style="font-weight:700;font-size:14px">Chef Amey Marathe</div><div style="font-size:12px;color:var(--t3)">India's only Genetically Certified Super-Taster · 20+ years F&B</div></div>
+      </div>
+      <p style="font-size:13px;color:var(--t2);line-height:1.65;font-family:var(--fd);font-style:italic">"In 20 years I've revived hundreds of restaurants. The problems are almost always the same — and almost always fixable. This tool tells you exactly where yours stands."</p>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;max-width:420px;margin:0 auto 40px">
+      <div style="background:var(--s1);border:1px solid var(--br);border-radius:14px;padding:20px 14px;text-align:left">
+        <div style="font-size:11px;font-weight:700;color:var(--ember);letter-spacing:1.5px;margin-bottom:10px">STAGE 1 · FREE</div>
+        <div style="font-weight:600;font-size:14px;margin-bottom:6px">Core Diagnosis</div>
+        <div style="color:var(--t3);font-size:12px;line-height:1.6">Health score · Menu audit · Financial vitals · Team · Revival plan</div>
+      </div>
+      <div style="background:var(--s1);border:1px solid rgba(232,73,10,.25);border-radius:14px;padding:20px 14px;text-align:left;position:relative;overflow:hidden">
+        <div style="position:absolute;top:0;right:0;background:var(--ember);font-size:9px;font-weight:700;color:#fff;padding:4px 10px;border-radius:0 14px 0 8px;letter-spacing:1px">UNLOCKS</div>
+        <div style="font-size:11px;font-weight:700;color:var(--ember);letter-spacing:1.5px;margin-bottom:10px">STAGE 2 · DEEP</div>
+        <div style="font-weight:600;font-size:14px;margin-bottom:6px">CX Full Journey</div>
+        <div style="color:var(--t3);font-size:12px;line-height:1.6">13-point CX audit · Entry to goodbye · Digital balance</div>
+      </div>
+    </div>
+    <button class="btn" style="max-width:340px;font-size:16px;padding:19px" onclick="show('form1')">Start Free Diagnosis →</button>
+    <p style="color:var(--t3);font-size:11px;margin-top:12px">No payment · 3 minutes · 🇮🇳 India & 🇺🇸 USA</p>
+    <div style="display:flex;justify-content:center;gap:36px;margin-top:48px;padding-top:28px;border-top:1px solid var(--br);flex-wrap:wrap">
+      <div><div style="font-family:var(--fd);font-size:26px;font-weight:700;color:var(--ember)">20+</div><div style="font-size:11px;color:var(--t3);margin-top:3px">Years of expertise</div></div>
+      <div><div style="font-family:var(--fd);font-size:26px;font-weight:700;color:var(--ember)">11</div><div style="font-size:11px;color:var(--t3);margin-top:3px">Diagnostic blocks</div></div>
+      <div><div style="font-family:var(--fd);font-size:26px;font-weight:700;color:var(--ember)">2</div><div style="font-size:11px;color:var(--t3);margin-top:3px">Markets: IN · US</div></div>
+    </div>
+  </div>
+
+  <!-- FORM 1 -->
+  <div id="screen-form1" style="display:none;padding:28px 20px">
+    <div style="display:flex;justify-content:center;margin-bottom:24px">
+      <div class="stage-pill"><div class="stage-dot active">① Core Diagnosis</div><div class="stage-dot">② CX Deep Dive</div></div>
+    </div>
+    <h2 style="font-family:var(--fd);font-size:28px;font-weight:700;margin-bottom:6px">Stage 1 — Core Diagnosis</h2>
+    <p style="color:var(--t2);margin-bottom:24px;font-size:14px">Be honest — the AI is only as good as the data you give it.</p>
+    <div class="card">
+      <div class="sec">📍 Restaurant Info</div>
+      <div class="g2">
+        <div class="fld"><label class="lbl">Restaurant Name *</label><input id="f-name" type="text" placeholder="e.g. The Blue Plate"></div>
+        <div class="fld"><label class="lbl">City & Country *</label><input id="f-loc" type="text" placeholder="e.g. New York, USA"></div>
+      </div>
+      <div class="g2">
+        <div class="fld"><label class="lbl">Cuisine Type</label><input id="f-cuisine" type="text" placeholder="e.g. Italian, North Indian"></div>
+        <div class="fld"><label class="lbl">Years in Operation</label><input id="f-years" type="number" placeholder="e.g. 3"></div>
+      </div>
+      <div class="fld"><label class="lbl">Restaurant Type</label>
+        <select id="f-type"><option value="">Select...</option><option>Fine Dining</option><option>Casual Dining</option><option>Quick Service (QSR)</option><option>Café / Bistro</option><option>Ghost Kitchen / Delivery Only</option><option>Bar & Restaurant</option><option>Food Truck</option></select>
+      </div>
+    </div>
+    <div class="card">
+      <div class="sec">📄 Menu <span style="font-size:9px;color:var(--green);margin-left:4px;font-weight:400;letter-spacing:0">AI READS THIS</span></div>
+      <div class="upload-zone" id="menu-zone" onclick="document.getElementById('menu-file').click()">
+        <input type="file" id="menu-file" accept="image/*,.pdf" style="display:none" onchange="handleMenu(this)">
+        <div id="menu-ph"><div style="font-size:26px;margin-bottom:8px">📤</div><div style="font-weight:600;font-size:14px;margin-bottom:3px">Upload Your Menu</div><div style="font-size:12px;color:var(--t3)">Photo, screenshot, or PDF · Max 10MB</div></div>
+        <div id="menu-ok" style="display:none"><div style="font-size:26px;margin-bottom:8px">✅</div><div id="menu-name" style="font-weight:600;font-size:14px;color:var(--green);margin-bottom:3px"></div><div style="font-size:12px;color:var(--t3)">Click to change</div></div>
+      </div>
+      <div class="g2" style="margin-top:13px">
+        <div class="fld"><label class="lbl">Total Menu Items</label><input id="f-items" type="number" placeholder="e.g. 45"></div>
+        <div class="fld"><label class="lbl">Standard Recipe Cards?</label>
+          <select id="f-sop"><option value="">Select...</option><option>Yes — fully documented</option><option>Partially documented</option><option>No — in chef's head</option></select>
+        </div>
+      </div>
+      <div class="fld"><label class="lbl">Describe menu briefly (optional)</label>
+        <textarea id="f-menudesc" rows="2" placeholder="e.g. 45 items — Italian. Top sellers: Carbonara, Margherita..."></textarea>
+      </div>
+    </div>
+    <div class="card">
+      <div class="sec">⭐ Online Presence</div>
+      <div class="fld"><label class="lbl" id="lbl-rev1">🔴 Review Platform 1 URL</label><input id="f-rev1" type="url" placeholder="https://www.zomato.com/..."></div>
+      <div class="fld"><label class="lbl">🔵 Google Maps URL</label><input id="f-rev2" type="url" placeholder="https://maps.google.com/..."></div>
+      <div class="g2">
+        <div class="fld"><label class="lbl" id="lbl-r1">Platform 1 Rating</label><input id="f-r1" type="number" step="0.1" min="1" max="5" placeholder="e.g. 4.2"></div>
+        <div class="fld"><label class="lbl">Google Rating</label><input id="f-r2" type="number" step="0.1" min="1" max="5" placeholder="e.g. 4.5"></div>
+      </div>
+      <div class="g2">
+        <div class="fld"><label class="lbl">Total Reviews</label><input id="f-rc" type="number" placeholder="e.g. 340"></div>
+        <div class="fld"><label class="lbl">Repeat Customers Est. %</label><input id="f-repeat" type="number" placeholder="e.g. 35"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="sec">💰 Financial Vitals</div>
+      <div class="g2">
+        <div class="fld"><label class="lbl" id="lbl-rev">Monthly Revenue</label><input id="f-rev" type="number" placeholder="e.g. 80000"></div>
+        <div class="fld"><label class="lbl">Food Cost %</label><input id="f-fc" type="number" placeholder="e.g. 30"></div>
+      </div>
+      <div class="g2">
+        <div class="fld"><label class="lbl">Gross Profit %</label><input id="f-gp" type="number" placeholder="e.g. 35"></div>
+        <div class="fld"><label class="lbl" id="lbl-bill">Avg Check / Bill</label><input id="f-bill" type="number" placeholder="e.g. 45"></div>
+      </div>
+      <div class="g2">
+        <div class="fld"><label class="lbl">Covers Per Day</label><input id="f-cov" type="number" placeholder="e.g. 60"></div>
+        <div class="fld"><label class="lbl">Labour Cost %</label><input id="f-labour" type="number" placeholder="e.g. 32"></div>
+      </div>
+      <div class="g2">
+        <div class="fld"><label class="lbl" id="lbl-waste">Monthly Wastage Est.</label><input id="f-waste" type="number" placeholder="e.g. 2000"></div>
+        <div class="fld"><label class="lbl">POS System?</label>
+          <select id="f-pos"><option value="">Select...</option><option>Yes — modern POS (Toast, Square, Petpooja)</option><option>Basic POS</option><option>Manual billing only</option><option>No system</option></select>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="sec">👥 Team & Kitchen</div>
+      <div class="g2">
+        <div class="fld"><label class="lbl">Kitchen Team Size</label><input id="f-kt" type="number" placeholder="e.g. 5"></div>
+        <div class="fld"><label class="lbl">Total Staff</label><input id="f-st" type="number" placeholder="e.g. 12"></div>
+      </div>
+      <div class="g2">
+        <div class="fld"><label class="lbl">Qualified Chef on Team?</label>
+          <select id="f-chef"><option value="">Select...</option><option>Yes — trained/certified chef</option><option>No — experienced cooks only</option><option>Not sure</option><option>Had chefs — keep leaving</option></select>
+        </div>
+        <div class="fld"><label class="lbl">Staff Turnover</label>
+          <select id="f-turn"><option value="">Select...</option><option>Stable — same team 1+ year</option><option>Some — 1-2 changes/year</option><option>High — every few months</option><option>Very high — constant</option></select>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="sec">🔍 The Real Problem</div>
+      <div class="fld"><label class="lbl">Your Biggest Challenge Right Now</label>
+        <textarea id="f-prob" rows="3" placeholder="e.g. Revenue falling, bad reviews, chef quit, food costs out of control..."></textarea>
+      </div>
+      <div class="g2">
+        <div class="fld"><label class="lbl">How Long Has This Been a Problem?</label>
+          <select id="f-dur"><option value="">Select...</option><option>Less than 1 month</option><option>1–3 months</option><option>3–6 months</option><option>6–12 months</option><option>Over a year</option></select>
+        </div>
+        <div class="fld"><label class="lbl">Who Do You Blame Most?</label>
+          <select id="f-blame"><option value="">Select...</option><option>My staff / team</option><option>Location / foot traffic</option><option>Review platforms</option><option>Competition nearby</option><option>Myself / my decisions</option><option>Economy / rising costs</option></select>
+        </div>
+      </div>
+      <div class="fld"><label class="lbl">What Have You Already Tried?</label>
+        <textarea id="f-tried" rows="2" placeholder="e.g. Changed menu, hired new chef, ran ads, reduced prices..."></textarea>
+      </div>
+    </div>
+    <div id="f-err" style="display:none;background:var(--red-d);border:1px solid rgba(192,57,43,.3);border-radius:10px;padding:12px 16px;color:var(--red);font-size:14px;margin-bottom:14px"></div>
+    <button class="btn" style="font-size:16px;padding:18px;margin-bottom:10px" onclick="goToLeadGate()">Get My Free Diagnosis →</button>
+    <p style="text-align:center;color:var(--t3);font-size:11px;margin-top:6px">Your results are one step away</p>
+  </div>
+
+  <!-- LEAD GATE -->
+  <div id="screen-leadgate" style="display:none;padding:28px 20px">
+    <div class="lead-gate">
+      <div style="font-size:40px;margin-bottom:16px">🔐</div>
+      <h2 style="font-family:var(--fd);font-size:28px;font-weight:700;margin-bottom:10px">Your diagnosis is ready!</h2>
+      <p style="font-size:15px;color:var(--t2);line-height:1.7;margin-bottom:28px;max-width:400px;margin-left:auto;margin-right:auto">Enter your details to unlock your RestroRx Health Score and personalised 90-day revival plan.</p>
+      <div style="text-align:left;max-width:400px;margin:0 auto">
+        <div class="fld"><label class="lbl">Your Name *</label><input id="l-name" type="text" placeholder="e.g. Rajesh Kumar"></div>
+        <div class="fld"><label class="lbl">Restaurant Name</label><input id="l-rest" type="text"></div>
+        <div class="fld"><label class="lbl" id="lbl-phone">Phone / WhatsApp Number *</label><input id="l-phone" type="tel" placeholder="e.g. +91 98765 43210"></div>
+        <div class="fld"><label class="lbl">Email Address</label><input id="l-email" type="email" placeholder="e.g. owner@restaurant.com"></div>
+        <div class="fld"><label class="lbl">Your biggest goal right now?</label>
+          <select id="l-goal"><option value="">Select...</option><option>Reduce food costs urgently</option><option>Increase revenue & covers</option><option>Improve online reviews & ratings</option><option>Fix team & kitchen standards</option><option>Reduce staff turnover</option><option>General health check</option><option>Thinking of closing — need honest advice</option></select>
+        </div>
+      </div>
+      <div id="l-err" style="display:none;background:var(--red-d);border:1px solid rgba(192,57,43,.3);border-radius:10px;padding:12px 16px;color:var(--red);font-size:14px;margin-top:8px;margin-bottom:8px;text-align:left;max-width:400px;margin-left:auto;margin-right:auto"></div>
+      <button class="btn" style="max-width:400px;font-size:16px;padding:18px;margin-top:16px" onclick="submitLead()">🩺 Unlock My Diagnosis</button>
+      <p style="font-size:11px;color:var(--t3);margin-top:12px">Chef Amey may personally reach out with additional insights. No spam, ever.</p>
+    </div>
+  </div>
+
+  <!-- LOADING 1 -->
+  <div id="screen-load1" style="display:none;padding:50px 20px">
+    <div style="text-align:center;margin-bottom:36px">
+      <div style="width:56px;height:56px;border:3px solid var(--br);border-top-color:var(--ember);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 20px"></div>
+      <h2 style="font-family:var(--fd);font-size:26px;font-weight:600;margin-bottom:8px">Running core diagnosis...</h2>
+      <p style="color:var(--t2);font-size:14px">Applying Chef Amey's 11-block framework</p>
+    </div>
+    <div class="card">
+      <div class="load-step" id="l1s1"><span class="step-dot"></span><span>Scanning restaurant profile</span></div>
+      <div class="load-step" id="l1s2"><span class="step-dot"></span><span>Reading menu — counting items & patterns</span></div>
+      <div class="load-step" id="l1s3"><span class="step-dot"></span><span>Analysing online reputation</span></div>
+      <div class="load-step" id="l1s4"><span class="step-dot"></span><span>Applying financial benchmarks for your market</span></div>
+      <div class="load-step" id="l1s5"><span class="step-dot"></span><span>Diagnosing team & operations</span></div>
+      <div class="load-step" id="l1s6"><span class="step-dot"></span><span>Building your personalised revival roadmap</span></div>
+    </div>
+  </div>
+
+  <!-- RESULT 1 -->
+  <div id="screen-result1" style="display:none;padding:28px 20px"></div>
+
+  <!-- FORM 2 -->
+  <div id="screen-form2" style="display:none;padding:28px 20px">
+    <div style="display:flex;justify-content:center;margin-bottom:24px">
+      <div class="stage-pill"><div class="stage-dot done">✓ Core Done</div><div class="stage-dot active">② CX Deep Dive</div></div>
+    </div>
+    <h2 style="font-family:var(--fd);font-size:28px;font-weight:700;margin-bottom:6px">Stage 2 — Full CX Audit</h2>
+    <p style="color:var(--t2);margin-bottom:8px;font-size:14px">Rate every customer touchpoint honestly. These are the 13 checkpoints Chef Amey evaluates in every restaurant.</p>
+    <p style="font-size:13px;color:var(--t3);margin-bottom:24px">From the moment they walk in to the moment they leave.</p>
+    <div class="card">
+      <div class="sec">🚪 Entry Experience</div>
+      <div class="fld"><label class="lbl">Greeting — Warm welcome the moment they enter?</label>
+        <select id="cx-1"><option value="">Select...</option><option>Always — trained, warm, consistent</option><option>Usually — depends on who's at door</option><option>Rarely — staff too busy</option><option>Never — no greeting process</option></select>
+      </div>
+      <div class="fld"><label class="lbl">Restroom / Washroom — How often cleaned?</label>
+        <select id="cx-2"><option value="">Select...</option><option>Every hour — with signed checklist</option><option>Multiple times a day</option><option>Once a day</option><option>Only when someone complains</option></select>
+      </div>
+      <div class="fld"><label class="lbl">Ambience & Comfort — Is the space welcoming?</label>
+        <select id="cx-3"><option value="">Select...</option><option>Excellent — lighting, temp, noise all dialed in</option><option>Good — mostly comfortable</option><option>Average — some issues</option><option>Poor — customers visibly uncomfortable</option></select>
+      </div>
+    </div>
+    <div class="card">
+      <div class="sec">🪑 Sit-Down Window</div>
+      <div class="fld"><label class="lbl">Table Setup — Cutlery & alignment checked before service?</label>
+        <select id="cx-4"><option value="">Select...</option><option>Yes — pre-service checklist every time</option><option>Mostly — but inconsistent</option><option>Rarely — set once, not rechecked</option><option>No system at all</option></select>
+      </div>
+      <div class="fld"><label class="lbl">Attentiveness — Acknowledged within 60 seconds of sitting?</label>
+        <select id="cx-5"><option value="">Select...</option><option>Always — within 60 seconds</option><option>Usually — but sometimes they wait</option><option>Often ignored for 2-5 minutes</option><option>Customers frequently have to call staff</option></select>
+      </div>
+    </div>
+    <div class="card">
+      <div class="sec">🍽️ Food Delivery Moment</div>
+      <div class="fld"><label class="lbl">Food Timing — Avg time from order to first dish?</label>
+        <select id="cx-6"><option value="">Select...</option><option>Under 12 minutes</option><option>12–20 minutes</option><option>20–35 minutes</option><option>35+ minutes — often delayed</option></select>
+      </div>
+      <div class="fld"><label class="lbl">Cutlery & Place Settings — Arrives before food?</label>
+        <select id="cx-7"><option value="">Select...</option><option>Always — part of our SOP</option><option>Usually — miss it sometimes</option><option>Often missed — customers ask</option><option>No system — random</option></select>
+      </div>
+      <div class="fld"><label class="lbl">Check-in — Server returns within 2 mins of food arriving?</label>
+        <select id="cx-8"><option value="">Select...</option><option>Always — trained behaviour</option><option>Sometimes — depends on staff</option><option>Rarely — staff disappear after serving</option><option>Never — no check-in process</option></select>
+      </div>
+    </div>
+    <div class="card">
+      <div class="sec">👋 Post-Meal Window</div>
+      <div class="fld"><label class="lbl">Bill Speed — How quickly after being asked?</label>
+        <select id="cx-9"><option value="">Select...</option><option>Within 2 minutes — always</option><option>2–5 minutes usually</option><option>5–10 minutes</option><option>10+ minutes — often a frustration</option></select>
+      </div>
+      <div class="fld"><label class="lbl">The Goodbye — Warm farewell when leaving?</label>
+        <select id="cx-10"><option value="">Select...</option><option>Always — trained, every table</option><option>Sometimes — depends on staff</option><option>Rarely — too busy</option><option>Never — no farewell process</option></select>
+      </div>
+      <div class="fld"><label class="lbl">Storytelling & Rapport — Staff share dish stories or remember regulars?</label>
+        <select id="cx-11"><option value="">Select...</option><option>Yes — part of our culture</option><option>Sometimes — a few staff do it</option><option>Rarely — never trained</option><option>Never — purely transactional</option></select>
+      </div>
+    </div>
+    <div class="card">
+      <div class="sec">🌐 Strategy</div>
+      <div class="fld"><label class="lbl">Digital vs Human — QR menus / online ordering?</label>
+        <select id="cx-12"><option value="">Select...</option><option>Balanced — digital for speed, human for emotion</option><option>Mostly digital — minimal human interaction</option><option>Mostly human — no digital tools</option><option>Fully digital — self-service</option></select>
+      </div>
+      <div class="fld"><label class="lbl">Innovation vs Consistency — How often does menu change?</label>
+        <select id="cx-13"><option value="">Select...</option><option>Seasonal — 20% new, 80% consistent core</option><option>Frequent changes — trying to stay fresh</option><option>Rarely change — same menu for years</option><option>No strategy — change by mood</option></select>
+      </div>
+    </div>
+    <div id="f-err2" style="display:none;background:var(--red-d);border:1px solid rgba(192,57,43,.3);border-radius:10px;padding:12px 16px;color:var(--red);font-size:14px;margin-bottom:14px"></div>
+    <button class="btn" style="font-size:16px;padding:18px;margin-bottom:10px" onclick="submit2()">🎯 Get My Full CX Score →</button>
+    <p style="text-align:center;color:var(--t3);font-size:11px;margin-top:6px">Stage 2 of 2 · 13 touchpoints · Full customer journey</p>
+  </div>
+
+  <!-- LOADING 2 -->
+  <div id="screen-load2" style="display:none;padding:50px 20px">
+    <div style="text-align:center;margin-bottom:36px">
+      <div style="width:56px;height:56px;border:3px solid var(--br);border-top-color:var(--ember);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 20px"></div>
+      <h2 style="font-family:var(--fd);font-size:26px;font-weight:600;margin-bottom:8px">Deep CX analysis running...</h2>
+      <p style="color:var(--t2);font-size:14px">Scoring all 13 customer touchpoints</p>
+    </div>
+    <div class="card">
+      <div class="load-step" id="l2s1"><span class="step-dot"></span><span>Scoring entry — greeting, restroom, ambience</span></div>
+      <div class="load-step" id="l2s2"><span class="step-dot"></span><span>Scoring sit-down — table, attentiveness</span></div>
+      <div class="load-step" id="l2s3"><span class="step-dot"></span><span>Scoring food delivery — timing, cutlery, check-in</span></div>
+      <div class="load-step" id="l2s4"><span class="step-dot"></span><span>Scoring post-meal — bill, goodbye, rapport</span></div>
+      <div class="load-step" id="l2s5"><span class="step-dot"></span><span>Diagnosing digital balance & innovation strategy</span></div>
+      <div class="load-step" id="l2s6"><span class="step-dot"></span><span>Building complete final verdict</span></div>
+    </div>
+  </div>
+
+  <!-- RESULT 2 -->
+  <div id="screen-result2" style="display:none;padding:28px 20px"></div>
+
+</div>
+
+<script>
+// ─── Region Detection ───
+function detectRegion(){
+  const tz=Intl.DateTimeFormat().resolvedOptions().timeZone||'';
+  const lang=navigator.language||'';
+  if(tz.startsWith('America/')||lang.startsWith('en-US')){
+    return{code:'US',flag:'🇺🇸',label:'United States',currency:'$',platform1:'Yelp',platform1url:'https://www.yelp.com/biz/...',revLabel:'Monthly Revenue ($)',billLabel:'Avg Check ($)',wasteLabel:'Monthly Wastage ($)',booking:'calendly',benchmarkNote:'US F&B: Food cost 28-32%, Labour 30-35%, Prime cost <60%'};
+  }
+  return{code:'IN',flag:'🇮🇳',label:'India',currency:'₹',platform1:'Zomato',platform1url:'https://www.zomato.com/...',revLabel:'Monthly Revenue (₹)',billLabel:'Avg Bill Value (₹)',wasteLabel:'Monthly Wastage (₹)',booking:'whatsapp',benchmarkNote:'India F&B: Food cost 25-30%, Labour 15-20%, GP target >35%'};
+}
+const R=detectRegion();
+
+// ─── State ───
+let menuB64=null,menuMime=null,scoreTmr=null,s1Data=null,s1Result=null,leadData=null,supabaseId=null;
+const sc=s=>s>=70?'var(--green)':s>=45?'var(--yellow)':'var(--red)';
+const scH=s=>s>=70?'#1A9E5A':s>=45?'#C67E0A':'#C0392B';
+const ST={'Healthy':{color:'var(--green)',bg:'var(--green-d)',icon:'●'},'Watch Zone':{color:'var(--yellow)',bg:'var(--yellow-d)',icon:'◐'},'Critical':{color:'var(--red)',bg:'var(--red-d)',icon:'○'}};
+
+const FRAMEWORK=`CHEF AMEY MARATHE'S 11-BLOCK DIAGNOSTIC FRAMEWORK:
+BLOCK 1 — ENTRY SCAN: Menu size (>40 items=red flag). Kitchen-menu fit. Team energy. Cleanliness.
+BLOCK 2 — 30/30 RULE: Food Cost>30% AND GP<30%=CRITICAL. US/EU: Prime cost (FC+Labour) target <60%.
+BLOCK 3 — THE REAL VILLAIN: Absence of standards. No standard recipes. No SOPs. Consistency attracts — variety kills kitchens.
+BLOCK 4 — 80/20 MENU SURGERY: Top 20 items=80% revenue. Cut ruthlessly. Standard Recipe Cards for every dish.
+BLOCK 5 — PEOPLE TRAP: Cook executes. Chef engineers. Can't hold people accountable to a standard never set.
+BLOCK 6 — REVIVAL SCORECARD: Revenue up MoM. Prime cost controlled. Ratings rising. Repeat customers growing.
+BLOCK 7 — FIRST 60 SECONDS: Greeting. Cleanliness. Comfort. RESTROOM/WASHROOM = non-negotiable.
+BLOCK 8 — SIT-DOWN WINDOW: Table alignment. Attentiveness within 60 seconds.
+BLOCK 9 — FOOD DELIVERY MOMENT: First dish within 15 mins. Presentation+aroma. Cutlery BEFORE food. Check-in within 2 mins.
+BLOCK 10 — POST-MEAL WINDOW: Bill within 3 mins. THE GOODBYE — most missed moment globally. Storytelling creates word-of-mouth.
+BLOCK 11 — TWO INVISIBLE KILLERS: Digital-Physical Disconnect. Consistency-Innovation-Relatability Triangle (20% new, 80% sacred).
+OWNER MINDSET: Most owners think F&B is easy money. When struggling they blame staff — bad staff is a symptom, bad ownership is the disease.`;
+
+// ─── Supabase helpers ───
+async function sbInsert(data){
+  if(!SUPABASE_URL)return null;
+  try{
+    const res=await fetch(`${SUPABASE_URL}/rest/v1/leads`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Prefer':'return=representation'},
+      body:JSON.stringify(data)
+    });
+    const rows=await res.json();
+    return rows?.[0]?.id||null;
+  }catch(e){console.log('Supabase insert error:',e);return null;}
+}
+
+async function sbUpdate(id,data){
+  if(!id)return;
+  try{
+    await fetch(`${SUPABASE_URL}/rest/v1/leads?id=eq.${id}`,{
+      method:'PATCH',
+      headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`},
+      body:JSON.stringify(data)
+    });
+  }catch(e){console.log('Supabase update error:',e);}
+}
+
+// ─── Init ───
+function initRegion(){
+  document.getElementById('nav-region').innerHTML=`${R.flag} ${R.label}`;
+  document.getElementById('intro-region-tag').innerHTML=`<span class="tag" style="background:var(--s2);border:1px solid var(--br);color:var(--t2);font-size:11px">${R.flag} Calibrated for ${R.label} · ${R.currency} · ${R.platform1} + Google</span>`;
+  const lm={
+    'lbl-rev1':`🔴 ${R.platform1} URL`,
+    'lbl-r1':`${R.platform1} Rating`,
+    'lbl-rev':R.revLabel,'lbl-bill':R.billLabel,'lbl-waste':R.wasteLabel,
+    'lbl-phone':R.code==='IN'?'WhatsApp Number *':'Phone Number *'
+  };
+  Object.entries(lm).forEach(([id,t])=>{const e=document.getElementById(id);if(e)e.textContent=t;});
+  const p1=document.getElementById('f-rev1');if(p1)p1.placeholder=R.platform1url;
+}
+
+function show(id){
+  ['intro','form1','leadgate','load1','result1','form2','load2','result2'].forEach(s=>{
+    document.getElementById('screen-'+s).style.display=s===id?'block':'none';
+  });
+  window.scrollTo(0,0);
+}
+
+function handleMenu(inp){
+  const f=inp.files[0];if(!f)return;
+  if(f.size>10*1024*1024){alert('Max 10MB');return;}
+  const r=new FileReader();
+  r.onload=e=>{
+    menuB64=e.target.result.split(',')[1];
+    menuMime=f.type==='application/pdf'?'application/pdf':(f.type||'image/jpeg');
+    document.getElementById('menu-ph').style.display='none';
+    document.getElementById('menu-ok').style.display='block';
+    document.getElementById('menu-name').textContent=f.name;
+    document.getElementById('menu-zone').classList.add('has-file');
+  };
+  r.readAsDataURL(f);
+}
+
+function lsSet(px,n,mx){for(let i=1;i<=mx;i++){const e=document.getElementById(px+i);if(e)e.className='load-step'+(i<n?' done':i===n?' active':'');}}
+
+function animScore(target,id){
+  let s=null;const dur=1400,ease=t=>t<.5?2*t*t:-1+(4-2*t)*t,r=66,c=2*Math.PI*r;
+  clearInterval(scoreTmr);
+  scoreTmr=setInterval(()=>{
+    if(!s)s=Date.now();
+    const p=Math.min((Date.now()-s)/dur,1),v=Math.round(ease(p)*target);
+    const n=document.getElementById(id+'-n'),rg=document.getElementById(id+'-r');
+    if(n)n.textContent=v;
+    if(rg)rg.style.strokeDashoffset=(c-(v/100)*c).toFixed(2);
+    if(p>=1)clearInterval(scoreTmr);
+  },16);
+}
+
+function animBars(){document.querySelectorAll('.bar-fill').forEach(b=>{setTimeout(()=>{b.style.width=b.dataset.v+'%';},400);});}
+const gv=id=>(document.getElementById(id)||{}).value||'';
+
+function bar(l,s){const c=scH(s);return `<div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:13px;color:var(--t2)">${l}</span><span style="font-size:13px;font-weight:700;color:${c}">${s}/100</span></div><div class="bar-wrap"><div class="bar-fill" data-v="${s}" style="background:${c}"></div></div></div>`;}
+
+function ring(id,color,circ){return `<div style="position:relative;width:150px;height:150px;margin:0 auto 18px"><svg width="150" height="150" viewBox="0 0 150 150" style="transform:rotate(-90deg)"><circle cx="75" cy="75" r="66" fill="none" stroke="#222" stroke-width="9"/><circle id="${id}-r" cx="75" cy="75" r="66" fill="none" stroke="${color}" stroke-width="9" stroke-dasharray="${circ}" stroke-dashoffset="${circ}" stroke-linecap="round"/></svg><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center"><span id="${id}-n" style="font-size:48px;font-weight:700;font-family:var(--fd);color:${color};line-height:1">0</span><span style="font-size:11px;color:var(--t3);margin-top:2px">/ 100</span></div></div>`;}
+
+function bookingBtn(restName,score,status,stage){
+  const msg=`Hi Chef Amey! I completed RestroRx ${stage} for ${restName}. Score: ${score}/100 (${status}). I'd love to book a consultation.`;
+  if(R.booking==='calendly'){
+    return `<a class="btn-cal" href="${CALENDLY}" target="_blank">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Book Consultation — Calendly
+    </a>`;
+  }
+  return `<a class="btn-wa" href="https://wa.me/${CHEF_WA}?text=${encodeURIComponent(msg)}" target="_blank">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+    Book on WhatsApp
+  </a>`;
+}
+
+async function callAPI(content){
+  const res=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      model:'claude-sonnet-4-20250514',max_tokens:2000,
+      system:`You are RestroRx, the world's most advanced restaurant revival AI built on Chef Amey Marathe's 11-block consulting framework. Chef Amey is India's only Genetically Certified Super-Taster with 20+ years F&B experience. Calibrate benchmarks to the restaurant's market (${R.label}). Use ${R.currency} for all money. Apply ${R.benchmarkNote}. Be direct, warm, experienced. Respond with valid JSON only.`,
+      messages:[{role:'user',content}]
+    })
+  });
+  if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(`API ${res.status}: ${e.error?.message||'Unknown'}`);}
+  const data=await res.json();
+  const text=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('');
+  const match=text.match(/\{[\s\S]*\}/);
+  if(!match)throw new Error('No JSON returned');
+  return JSON.parse(match[0]);
+}
+
+function goToLeadGate(){
+  const name=gv('f-name'),loc=gv('f-loc');
+  if(!name||!loc){const e=document.getElementById('f-err');e.style.display='block';e.textContent='Please fill in Restaurant Name and City.';return;}
+  document.getElementById('f-err').style.display='none';
+  const restField=document.getElementById('l-rest');if(restField)restField.value=name;
+  show('leadgate');
+}
+
+async function submitLead(){
+  const name=gv('l-name'),phone=gv('l-phone');
+  if(!name||!phone){const e=document.getElementById('l-err');e.style.display='block';e.textContent='Please enter your name and phone number.';return;}
+  document.getElementById('l-err').style.display='none';
+  leadData={name,restaurant:gv('l-rest'),phone,email:gv('l-email'),goal:gv('l-goal')};
+  s1Data={
+    name:gv('f-name'),loc:gv('f-loc'),cuisine:gv('f-cuisine'),years:gv('f-years'),type:gv('f-type'),
+    items:gv('f-items'),sop:gv('f-sop'),menuDesc:gv('f-menudesc'),
+    rev1:gv('f-rev1'),rev2:gv('f-rev2'),r1:gv('f-r1'),r2:gv('f-r2'),rc:gv('f-rc'),repeat:gv('f-repeat'),
+    rev:gv('f-rev'),fc:gv('f-fc'),gp:gv('f-gp'),bill:gv('f-bill'),cov:gv('f-cov'),labour:gv('f-labour'),waste:gv('f-waste'),pos:gv('f-pos'),
+    kt:gv('f-kt'),st:gv('f-st'),chef:gv('f-chef'),turn:gv('f-turn'),
+    prob:gv('f-prob'),dur:gv('f-dur'),blame:gv('f-blame'),tried:gv('f-tried')
+  };
+  // Send email notification
+  try{
+    await fetch(`https://formspree.io/f/${FORMSPREE_ID}`,{
+      method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},
+      body:JSON.stringify({
+        _subject:`🍽️ New RestroRx Lead [${R.flag}${R.code}] — ${leadData.restaurant||s1Data.name}`,
+        market:`${R.flag} ${R.label}`,name:leadData.name,restaurant:leadData.restaurant||s1Data.name,
+        location:s1Data.loc,phone:leadData.phone,email:leadData.email||'Not provided',
+        goal:leadData.goal,revenue:`${R.currency}${s1Data.rev}/mo`,
+        foodCost:`${s1Data.fc}%`,labourCost:`${s1Data.labour}%`,grossProfit:`${s1Data.gp}%`,
+        problem:s1Data.prob,blames:s1Data.blame,tried:s1Data.tried,
+        timestamp:new Date().toLocaleString('en-GB',{timeZone:'Asia/Kolkata'})
+      })
+    });
+  }catch(e){console.log('Email error:',e);}
+  show('load1');
+  [600,1800,3000,4200,5400].forEach((t,i)=>setTimeout(()=>lsSet('l1s',i+2,6),t));
+  lsSet('l1s',1,6);
+  runStage1();
+}
+
+async function runStage1(){
+  const d=s1Data;
+  const content=[];
+  if(menuB64){content.push(menuMime==='application/pdf'?{type:'document',source:{type:'base64',media_type:'application/pdf',data:menuB64}}:{type:'image',source:{type:'base64',media_type:menuMime,data:menuB64}});}
+  content.push({type:'text',text:`${FRAMEWORK}
+STAGE 1 — Market: ${R.label} (${R.currency})
+Name: ${d.name} | Location: ${d.loc} | Cuisine: ${d.cuisine} | Type: ${d.type} | Years: ${d.years}
+Menu: ${d.items||'?'} items | Recipes: ${d.sop} | Desc: ${d.menuDesc}
+${R.platform1}: ${d.r1||'—'}/5 | Google: ${d.r2||'—'}/5 | Reviews: ${d.rc} | Repeat: ${d.repeat}%
+Revenue: ${R.currency}${d.rev}/mo | Food Cost: ${d.fc}% | Labour: ${d.labour}% | Prime Cost: ${d.fc&&d.labour?Number(d.fc)+Number(d.labour)+'%':'?'} | GP: ${d.gp}%
+Avg: ${R.currency}${d.bill} | Covers: ${d.cov}/day | Wastage: ${R.currency}${d.waste}/mo | POS: ${d.pos}
+Kitchen: ${d.kt} | Staff: ${d.st} | Chef: ${d.chef} | Turnover: ${d.turn}
+Problem: ${d.prob} | Duration: ${d.dur} | Blames: ${d.blame} | Tried: ${d.tried}
+${menuB64?'Menu uploaded — analyse carefully.':'No menu uploaded.'}
+Benchmark: ${R.benchmarkNote}
+
+Respond ONLY with valid JSON using ${R.currency} for all money:
+{"healthScore":62,"status":"Watch Zone","headline":"Brutally honest one-liner",
+"scores":{"financial":45,"menu":38,"team":50,"operations":48,"onlineReputation":55},
+"menuAnalysis":{"itemsDetected":"45 items","menuScore":40,"findings":["f1","f2","f3"],"cutRecommendation":"advice","monthlyWasteEst":"${R.currency}3,000"},
+"reviewAnalysis":{"sentiment":"Mixed","sentimentScore":52,"complaints":["c1","c2","c3"],"praises":["p1","p2"],"insight":"key insight"},
+"findings":["f1","f2","f3","f4","f5"],
+"actions":[{"action":"specific","impact":"${R.currency}X,XXX/month","timeline":"Week 1–2","cat":"Financial"},{"action":"specific","impact":"${R.currency}X,XXX/month","timeline":"Week 3–4","cat":"Menu"},{"action":"specific","impact":"${R.currency}X,XXX/month","timeline":"Week 5–8","cat":"Team"}],
+"plan":"3-4 sentence 90-day plan with Month 1/2/3 milestones",
+"chefNote":"2 sentences from Chef Amey — direct and warm",
+"cxTeaser":"One sentence hinting at what the CX audit will reveal"}
+status: Healthy, Watch Zone, or Critical`});
+
+  try{
+    s1Result=await callAPI(content);
+    // Save to Supabase
+    supabaseId=await sbInsert({
+      market:R.code,lead_name:leadData.name,restaurant:leadData.restaurant||d.name,
+      location:d.loc,phone:leadData.phone,email:leadData.email||null,goal:leadData.goal||null,
+      cuisine:d.cuisine,years:d.years,rest_type:d.type,menu_items:d.items,standard_recipes:d.sop,
+      platform1_url:d.rev1||null,platform2_url:d.rev2||null,rating1:d.r1||null,rating2:d.r2||null,
+      review_count:d.rc||null,repeat_pct:d.repeat||null,revenue:d.rev||null,food_cost:d.fc||null,
+      gross_profit:d.gp||null,avg_bill:d.bill||null,covers:d.cov||null,labour_cost:d.labour||null,
+      wastage:d.waste||null,pos:d.pos||null,kitchen_team:d.kt||null,total_staff:d.st||null,
+      chef:d.chef||null,turnover:d.turn||null,problem:d.prob||null,duration:d.dur||null,
+      blame:d.blame||null,tried:d.tried||null,
+      health_score:s1Result.healthScore,status:s1Result.status,headline:s1Result.headline,
+      scores:s1Result.scores,menu_analysis:s1Result.menuAnalysis,review_analysis:s1Result.reviewAnalysis,
+      findings:s1Result.findings,actions:s1Result.actions,plan:s1Result.plan,chef_note:s1Result.chefNote,
+      stage:'stage1',followup_status:'new',
+      full_data:{formData:d,leadData,result:s1Result}
+    });
+    renderResult1(s1Result,d);
+  }catch(e){
+    console.error(e);show('leadgate');
+    const err=document.getElementById('l-err');err.style.display='block';err.textContent='Diagnosis failed: '+e.message;
+  }
+}
+
+function renderResult1(r,d){
+  const st=ST[r.status]||ST['Watch Zone'];
+  const color=sc(r.healthScore);
+  const rc=(2*Math.PI*66).toFixed(2);
+  const ma=r.menuAnalysis||{},ra=r.reviewAnalysis||{},sc2=r.scores||{};
+
+  document.getElementById('screen-result1').innerHTML=`
+    <div style="display:flex;justify-content:center;margin-bottom:20px">
+      <div class="stage-pill" style="max-width:280px"><div class="stage-dot done">✓ Stage 1 Complete</div><div class="stage-dot">② CX Deep Dive</div></div>
+    </div>
+    <div style="background:var(--s2);border:1px solid var(--br);border-radius:12px;padding:14px 18px;margin-bottom:13px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <div style="display:flex;align-items:center;gap:10px"><div style="font-size:18px">👋</div><div><div style="font-weight:600;font-size:14px">Hi ${leadData?.name||'there'}!</div><div style="font-size:12px;color:var(--t2)">Diagnosis for <strong>${d.name}</strong> · ${d.loc}</div></div></div>
+      <div class="region-badge">${R.flag} ${R.label} · ${R.currency}</div>
+    </div>
+    <div style="background:var(--s1);border:1px solid var(--br);border-radius:20px;padding:34px 22px;text-align:center;margin-bottom:13px;position:relative;overflow:hidden">
+      <div style="position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:260px;height:260px;border-radius:50%;background:radial-gradient(${color}15,transparent 70%);pointer-events:none"></div>
+      <div style="font-size:10px;color:var(--t3);letter-spacing:3px;text-transform:uppercase;margin-bottom:22px">Stage 1 · Core Health Score</div>
+      ${ring('s1',color,rc)}
+      <span class="tag" style="background:${st.bg};border:1px solid ${st.color}55;color:${st.color};font-size:13px;margin-bottom:14px">${st.icon} &nbsp;${r.status}</span>
+      <p style="font-family:var(--fd);font-size:19px;font-style:italic;color:var(--t2);line-height:1.45;margin-top:14px;max-width:440px;margin-left:auto;margin-right:auto">"${r.headline}"</p>
+    </div>
+    <div class="card"><div class="sec">📊 Score by Dimension</div>
+      ${bar('💰 Financial Health',sc2.financial||0)}${bar('📋 Menu Health',sc2.menu||0)}${bar('👥 Team & People',sc2.team||0)}${bar('⚙️ Operations',sc2.operations||0)}${bar('⭐ Online Reputation',sc2.onlineReputation||0)}
+    </div>
+    ${ma.findings?.length?`<div class="card"><div class="sec">📋 Menu Intelligence ${menuB64?'<span style="font-size:9px;color:var(--green);font-weight:400;letter-spacing:0">FROM YOUR UPLOAD</span>':''}</div>
+      <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+        <div class="score-tab"><div style="font-family:var(--fd);font-size:20px;font-weight:700;color:var(--ember)">${ma.itemsDetected||'—'}</div><div style="font-size:10px;color:var(--t3);margin-top:3px">Items</div></div>
+        <div class="score-tab"><div style="font-family:var(--fd);font-size:20px;font-weight:700;color:${sc(ma.menuScore||0)}">${ma.menuScore||'—'}/100</div><div style="font-size:10px;color:var(--t3);margin-top:3px">Menu Score</div></div>
+        <div class="score-tab"><div style="font-family:var(--fd);font-size:18px;font-weight:700;color:var(--red)">${ma.monthlyWasteEst||'—'}</div><div style="font-size:10px;color:var(--t3);margin-top:3px">Waste/mo</div></div>
+      </div>
+      ${ma.findings.map(f=>`<div class="fr"><div style="width:6px;height:6px;border-radius:50%;background:var(--ember);flex-shrink:0;margin-top:7px"></div><p style="color:var(--t2);font-size:14px;line-height:1.6">${f}</p></div>`).join('')}
+      ${ma.cutRecommendation?`<div style="background:var(--green-d);border:1px solid rgba(26,158,90,.2);border-radius:9px;padding:12px 14px;margin-top:12px"><span style="font-size:12px;font-weight:600;color:var(--green)">Chef's Cut: </span><span style="font-size:13px;color:var(--t2)">${ma.cutRecommendation}</span></div>`:''}
+    </div>`:''}
+    ${ra.complaints?.length?`<div class="card"><div class="sec">⭐ Review Intelligence</div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px">
+        <span style="font-size:13px;color:var(--t2)">Sentiment:</span>
+        <span class="tag" style="background:${ra.sentiment==='Positive'?'var(--green-d)':ra.sentiment==='Negative'?'var(--red-d)':'var(--yellow-d)'};color:${ra.sentiment==='Positive'?'var(--green)':ra.sentiment==='Negative'?'var(--red)':'var(--yellow)'};border:1px solid ${ra.sentiment==='Positive'?'rgba(26,158,90,.3)':ra.sentiment==='Negative'?'rgba(192,57,43,.3)':'rgba(198,126,10,.3)'};font-size:12px">${ra.sentiment||'Mixed'} · ${ra.sentimentScore||'—'}/100</span>
+      </div>
+      ${ra.complaints?.length?`<div style="margin-bottom:12px"><div style="font-size:10px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px">Top Complaints</div>${ra.complaints.map(c=>`<div class="fr"><div style="width:6px;height:6px;border-radius:50%;background:var(--red);flex-shrink:0;margin-top:7px"></div><p style="color:var(--t2);font-size:14px;line-height:1.6">${c}</p></div>`).join('')}</div>`:''}
+      ${ra.praises?.length?`<div><div style="font-size:10px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px">What Customers Love</div>${ra.praises.map(p=>`<div class="fr"><div style="width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;margin-top:7px"></div><p style="color:var(--t2);font-size:14px;line-height:1.6">${p}</p></div>`).join('')}</div>`:''}
+      ${ra.insight?`<div style="background:var(--gold-d);border:1px solid rgba(184,133,31,.2);border-radius:9px;padding:12px 14px;margin-top:12px"><span style="font-size:12px;font-weight:600;color:var(--gold)">Key Insight: </span><span style="font-size:13px;color:var(--t2)">${ra.insight}</span></div>`:''}
+    </div>`:''}
+    <div class="card"><div class="sec">🔍 Key Findings</div>
+      ${(r.findings||[]).map((f,i)=>`<div class="fr"><div style="width:25px;height:25px;border-radius:7px;background:var(--ember-d);border:1px solid rgba(232,73,10,.2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--ember);flex-shrink:0">${i+1}</div><p style="color:var(--t2);font-size:14px;line-height:1.6;padding-top:2px">${f}</p></div>`).join('')}
+    </div>
+    <div class="card"><div class="sec">⚡ 3 Immediate Actions</div>
+      ${(r.actions||[]).map(a=>`<div class="ac"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px"><div style="flex:1">${a.cat?`<div style="font-size:10px;font-weight:600;color:var(--ember);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px">${a.cat}</div>`:''}<div style="font-weight:600;font-size:14px;line-height:1.5;margin-bottom:5px">${a.action}</div><div style="font-size:11px;color:var(--t3)">⏱ ${a.timeline}</div></div><div style="background:var(--green-d);border:1px solid rgba(26,158,90,.22);border-radius:9px;padding:7px 12px;flex-shrink:0;text-align:center"><div style="color:var(--green);font-weight:700;font-size:14px">${a.impact}</div><div style="font-size:10px;color:var(--t3);margin-top:2px">est. saving</div></div></div></div>`).join('')}
+    </div>
+    <div class="card"><div class="sec">📋 90-Day Revival Roadmap</div><p style="color:var(--t2);font-size:14px;line-height:1.8">${r.plan}</p></div>
+    <div style="background:linear-gradient(135deg,#141414,#1a1206);border:1px solid rgba(184,133,31,.22);border-radius:16px;padding:22px;margin-bottom:13px">
+      <div style="display:flex;gap:14px;align-items:flex-start">
+        <div style="width:42px;height:42px;background:var(--gold-d);border:1px solid rgba(184,133,31,.25);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">👨‍🍳</div>
+        <div><div style="font-size:10px;color:var(--gold);font-weight:700;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:9px">A Note from Chef Amey</div>
+        <p style="color:var(--t2);font-size:15px;line-height:1.75;font-family:var(--fd);font-style:italic">"${r.chefNote}"</p></div>
+      </div>
+    </div>
+    <div style="background:var(--s1);border:1px solid ${R.booking==='calendly'?'rgba(0,107,255,.25)':'rgba(37,211,102,.25)'};border-radius:16px;padding:24px;margin-bottom:13px;text-align:center">
+      <div style="font-size:13px;font-weight:700;color:${R.booking==='calendly'?'var(--cal)':'var(--wa)'};text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px">Talk to Chef Amey Directly</div>
+      <div style="font-family:var(--fd);font-size:20px;font-weight:700;margin-bottom:8px">Book a Personal Consultation</div>
+      <p style="font-size:13px;color:var(--t2);margin-bottom:18px;line-height:1.6">Chef Amey reviews every RestroRx diagnosis personally. Book a slot to discuss your restaurant's full revival plan.</p>
+      ${bookingBtn(d.name,r.healthScore,r.status,'Stage 1')}
+    </div>
+    <div class="unlock-card">
+      <div style="display:flex;gap:14px;align-items:flex-start;margin-bottom:18px">
+        <div style="font-size:36px;flex-shrink:0">🎯</div>
+        <div><div style="font-size:11px;font-weight:700;color:var(--ember);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">Stage 2 Unlocked</div>
+        <div style="font-family:var(--fd);font-size:22px;font-weight:700;margin-bottom:8px">Your CX score is missing</div>
+        <p style="font-size:14px;color:var(--t2);line-height:1.6">${r.cxTeaser||'Your customer experience journey hasn\'t been scored yet. This is where most revenue leaks hide.'}</p></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px">
+        ${['Entry','Table','Food','Post-Meal'].map(l=>`<div style="background:rgba(0,0,0,.3);border:1px solid var(--br);border-radius:8px;padding:10px;text-align:center"><div style="font-size:18px;font-weight:700;color:var(--t3);font-family:var(--fd)">?</div><div style="font-size:10px;color:var(--t3);margin-top:3px">${l}</div></div>`).join('')}
+      </div>
+      <button class="btn" style="font-size:15px;padding:16px" onclick="show('form2')">🎯 Unlock Full CX Score →</button>
+      <p style="text-align:center;font-size:11px;color:var(--t3);margin-top:10px">13 touchpoints · Entry to goodbye · 5 minutes</p>
+    </div>
+    <button class="ghost" onclick="resetAll()">← Start Over</button>`;
+
+  show('result1');
+  setTimeout(()=>{animScore(r.healthScore,'s1');animBars();},300);
+}
+
+// ─── Stage 2 ───
+async function submit2(){
+  show('load2');
+  [500,1500,2800,4000,5200].forEach((t,i)=>setTimeout(()=>lsSet('l2s',i+2,6),t));
+  lsSet('l2s',1,6);
+  const cx={cx1:gv('cx-1'),cx2:gv('cx-2'),cx3:gv('cx-3'),cx4:gv('cx-4'),cx5:gv('cx-5'),cx6:gv('cx-6'),cx7:gv('cx-7'),cx8:gv('cx-8'),cx9:gv('cx-9'),cx10:gv('cx-10'),cx11:gv('cx-11'),cx12:gv('cx-12'),cx13:gv('cx-13')};
+  const d=s1Data,r1=s1Result;
+  try{
+    const r=await callAPI([{type:'text',text:`${FRAMEWORK}
+STAGE 2 CX — Market: ${R.label} (${R.currency})
+Restaurant: ${d.name}, ${d.loc} | Stage 1: ${r1.healthScore}/100 (${r1.status})
+Stage 1 issues: ${(r1.findings||[]).join('; ')}
+13 CX CHECKPOINTS:
+Entry — Greeting: ${cx.cx1} | Restroom: ${cx.cx2} | Ambience: ${cx.cx3}
+Sit-down — Table: ${cx.cx4} | Attentiveness: ${cx.cx5}
+Food — Timing: ${cx.cx6} | Cutlery: ${cx.cx7} | Check-in: ${cx.cx8}
+Post-meal — Bill: ${cx.cx9} | Goodbye: ${cx.cx10} | Rapport: ${cx.cx11}
+Strategy — Digital: ${cx.cx12} | Innovation: ${cx.cx13}
+Respond ONLY with valid JSON using ${R.currency}:
+{"finalScore":58,"status":"Watch Zone","headline":"Combined honest summary",
+"cxAnalysis":{"cxScore":52,"entryScore":60,"tableScore":45,"foodScore":65,"postMealScore":35,"strategyScore":50,"topIssues":["i1","i2","i3"],"quickWins":["w1 — zero cost, today","w2 — zero cost, today"],"worstTouchpoint":"specific touchpoint and why"},
+"fullScores":{"financial":45,"menu":38,"customerExperience":52,"team":50,"operations":48,"onlineReputation":55},
+"topFindings":["f1","f2","f3","f4","f5"],
+"priorityActions":[{"action":"highest impact","impact":"${R.currency}X,XXX/month","timeline":"This week","cat":"CX"},{"action":"second","impact":"${R.currency}X,XXX/month","timeline":"Week 2–3","cat":"Financial"},{"action":"third","impact":"${R.currency}X,XXX/month","timeline":"Month 2","cat":"Menu"},{"action":"fourth","impact":"${R.currency}X,XXX/month","timeline":"Month 2–3","cat":"Team"}],
+"fullPlan":"90-day specific plan: Month 1 → Month 2 → Month 3",
+"chefFinalNote":"3 sentences. Chef Amey's personal final verdict."}
+status: Healthy, Watch Zone, or Critical`}]);
+
+    // Update Supabase record with Stage 2 data
+    await sbUpdate(supabaseId,{
+      cx_greeting:cx.cx1,cx_restroom:cx.cx2,cx_ambience:cx.cx3,cx_table:cx.cx4,cx_attentiveness:cx.cx5,
+      cx_timing:cx.cx6,cx_cutlery:cx.cx7,cx_checkin:cx.cx8,cx_bill:cx.cx9,cx_goodbye:cx.cx10,
+      cx_rapport:cx.cx11,cx_digital:cx.cx12,cx_innovation:cx.cx13,
+      final_score:r.finalScore,cx_analysis:r.cxAnalysis,full_scores:r.fullScores,
+      top_findings:r.topFindings,priority_actions:r.priorityActions,full_plan:r.fullPlan,
+      chef_final_note:r.chefFinalNote,stage:'stage2_complete',
+      full_data:{formData:s1Data,leadData,s1Result,cx,s2Result:r}
+    });
+
+    // Email Stage 2 notification
+    try{
+      await fetch(`https://formspree.io/f/${FORMSPREE_ID}`,{
+        method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},
+        body:JSON.stringify({
+          _subject:`🎯 Stage 2 Complete [${R.flag}${R.code}] — ${s1Data.name} — Final: ${r.finalScore}/100`,
+          market:`${R.flag} ${R.label}`,name:leadData?.name,restaurant:s1Data.name,
+          phone:leadData?.phone,finalScore:`${r.finalScore}/100 (${r.status})`,
+          cxScore:`${r.cxAnalysis?.cxScore||'—'}/100`,worstTouchpoint:r.cxAnalysis?.worstTouchpoint,
+          stage:'Stage 2 Complete',timestamp:new Date().toLocaleString('en-GB',{timeZone:'Asia/Kolkata'})
+        })
+      });
+    }catch(e){console.log('Stage 2 email error:',e);}
+    renderResult2(r,d);
+  }catch(e){
+    console.error(e);show('form2');
+    const err=document.getElementById('f-err2');err.style.display='block';err.textContent='CX analysis failed: '+e.message;
+  }
+}
+
+function renderResult2(r,d){
+  const st=ST[r.status]||ST['Watch Zone'];
+  const color=sc(r.finalScore);
+  const rc=(2*Math.PI*66).toFixed(2);
+  const cx=r.cxAnalysis||{},sc2=r.fullScores||{};
+
+  document.getElementById('screen-result2').innerHTML=`
+    <div style="display:flex;justify-content:center;margin-bottom:20px">
+      <div class="stage-pill" style="max-width:280px"><div class="stage-dot done">✓ Stage 1</div><div class="stage-dot done">✓ Complete</div></div>
+    </div>
+    <div style="background:var(--s2);border:1px solid var(--br);border-radius:12px;padding:14px 18px;margin-bottom:13px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <div style="display:flex;align-items:center;gap:10px"><div style="font-size:18px">🎯</div><div><div style="font-weight:600;font-size:14px">Full diagnosis complete, ${leadData?.name||'Chef'}!</div><div style="font-size:12px;color:var(--t2)"><strong>${d.name}</strong> · ${d.loc}</div></div></div>
+      <div class="region-badge">${R.flag} ${R.label} · ${R.currency}</div>
+    </div>
+    <div style="background:var(--s1);border:1px solid var(--br);border-radius:20px;padding:34px 22px;text-align:center;margin-bottom:13px;position:relative;overflow:hidden">
+      <div style="position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:260px;height:260px;border-radius:50%;background:radial-gradient(${color}15,transparent 70%);pointer-events:none"></div>
+      <div style="font-size:10px;color:var(--t3);letter-spacing:3px;text-transform:uppercase;margin-bottom:22px">Complete RestroRx Score · Stage 1 + 2</div>
+      ${ring('s2',color,rc)}
+      <span class="tag" style="background:${st.bg};border:1px solid ${st.color}55;color:${st.color};font-size:13px;margin-bottom:14px">${st.icon} &nbsp;${r.status}</span>
+      <p style="font-family:var(--fd);font-size:19px;font-style:italic;color:var(--t2);line-height:1.45;margin-top:14px;max-width:440px;margin-left:auto;margin-right:auto">"${r.headline}"</p>
+      <div style="display:flex;justify-content:center;gap:8px;margin-top:16px;flex-wrap:wrap">
+        <span class="tag" style="background:var(--green-d);border:1px solid rgba(26,158,90,.2);color:var(--green);font-size:10px">✓ 11 Blocks Scored</span>
+        <span class="tag" style="background:var(--green-d);border:1px solid rgba(26,158,90,.2);color:var(--green);font-size:10px">✓ Full CX Journey</span>
+        <span class="tag" style="background:var(--ember-d);border:1px solid rgba(232,73,10,.2);color:var(--ember);font-size:10px">${R.flag} ${R.label}</span>
+      </div>
+    </div>
+    <div class="card"><div class="sec">📊 Complete Score Card</div>
+      ${bar('💰 Financial Health',sc2.financial||0)}${bar('📋 Menu Health',sc2.menu||0)}${bar('🎯 Customer Experience',sc2.customerExperience||0)}${bar('👥 Team & People',sc2.team||0)}${bar('⚙️ Operations',sc2.operations||0)}${bar('⭐ Online Reputation',sc2.onlineReputation||0)}
+    </div>
+    <div class="card"><div class="sec">🎯 Customer Journey Scores</div>
+      <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+        ${[['Entry',cx.entryScore],['Table',cx.tableScore],['Food',cx.foodScore],['Post-Meal',cx.postMealScore],['Strategy',cx.strategyScore]].map(([l,s])=>`<div class="score-tab"><div style="font-family:var(--fd);font-size:22px;font-weight:700;color:${sc(s||0)}">${s||'—'}</div><div style="font-size:10px;color:var(--t3);margin-top:3px">${l}</div></div>`).join('')}
+      </div>
+      ${cx.worstTouchpoint?`<div style="background:var(--red-d);border:1px solid rgba(192,57,43,.2);border-radius:9px;padding:12px 14px;margin-bottom:14px"><span style="font-size:12px;font-weight:600;color:var(--red)">Biggest CX Gap: </span><span style="font-size:13px;color:var(--t2)">${cx.worstTouchpoint}</span></div>`:''}
+      ${cx.topIssues?.length?`<div style="margin-bottom:14px"><div style="font-size:10px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px">Top CX Issues</div>${cx.topIssues.map(i=>`<div class="fr"><div style="width:6px;height:6px;border-radius:50%;background:var(--red);flex-shrink:0;margin-top:7px"></div><p style="color:var(--t2);font-size:14px;line-height:1.6">${i}</p></div>`).join('')}</div>`:''}
+      ${cx.quickWins?.length?`<div style="background:var(--green-d);border:1px solid rgba(26,158,90,.2);border-radius:9px;padding:14px"><div style="font-size:10px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px">Quick CX Wins — Zero Cost</div>${cx.quickWins.map(w=>`<div style="display:flex;gap:8px;margin-bottom:6px"><span style="color:var(--green)">✓</span><span style="color:var(--t2);font-size:14px">${w}</span></div>`).join('')}</div>`:''}
+    </div>
+    <div class="card"><div class="sec">🔍 Complete Findings</div>
+      ${(r.topFindings||[]).map((f,i)=>`<div class="fr"><div style="width:25px;height:25px;border-radius:7px;background:var(--ember-d);border:1px solid rgba(232,73,10,.2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--ember);flex-shrink:0">${i+1}</div><p style="color:var(--t2);font-size:14px;line-height:1.6;padding-top:2px">${f}</p></div>`).join('')}
+    </div>
+    <div class="card"><div class="sec">⚡ Priority Action Plan</div>
+      ${(r.priorityActions||[]).map(a=>`<div class="ac"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px"><div style="flex:1">${a.cat?`<div style="font-size:10px;font-weight:600;color:var(--ember);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px">${a.cat}</div>`:''}<div style="font-weight:600;font-size:14px;line-height:1.5;margin-bottom:5px">${a.action}</div><div style="font-size:11px;color:var(--t3)">⏱ ${a.timeline}</div></div><div style="background:var(--green-d);border:1px solid rgba(26,158,90,.22);border-radius:9px;padding:7px 12px;flex-shrink:0;text-align:center"><div style="color:var(--green);font-weight:700;font-size:14px">${a.impact}</div><div style="font-size:10px;color:var(--t3);margin-top:2px">est. saving</div></div></div></div>`).join('')}
+    </div>
+    <div class="card"><div class="sec">📋 Complete 90-Day Revival Plan</div><p style="color:var(--t2);font-size:14px;line-height:1.8">${r.fullPlan}</p></div>
+    <div style="background:linear-gradient(135deg,#141414,#1a1206);border:1px solid rgba(184,133,31,.3);border-radius:16px;padding:24px;margin-bottom:13px">
+      <div style="display:flex;gap:14px;align-items:flex-start">
+        <div style="width:44px;height:44px;background:var(--gold-d);border:1px solid rgba(184,133,31,.3);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">👨‍🍳</div>
+        <div><div style="font-size:10px;color:var(--gold);font-weight:700;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:10px">Chef Amey's Final Verdict</div>
+        <p style="color:var(--t2);font-size:16px;line-height:1.75;font-family:var(--fd);font-style:italic">"${r.chefFinalNote}"</p></div>
+      </div>
+    </div>
+    <div style="background:var(--s1);border:1px solid ${R.booking==='calendly'?'rgba(0,107,255,.25)':'rgba(37,211,102,.25)'};border-radius:16px;padding:24px;margin-bottom:12px;text-align:center">
+      <div style="font-size:13px;font-weight:700;color:${R.booking==='calendly'?'var(--cal)':'var(--wa)'};text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px">Ready to Fix This?</div>
+      <div style="font-family:var(--fd);font-size:22px;font-weight:700;margin-bottom:8px">Book a 1-on-1 with Chef Amey</div>
+      <p style="font-size:13px;color:var(--t2);margin-bottom:18px;line-height:1.6">Chef Amey has revived restaurants across India, Asia, and globally. Book your consultation and start your revival today.</p>
+      ${bookingBtn(d.name,r.finalScore,r.status,'Full Diagnosis')}
+    </div>
+    <button class="ghost" onclick="resetAll()">← Diagnose Another Restaurant</button>`;
+
+  show('result2');
+  setTimeout(()=>{animScore(r.finalScore,'s2');animBars();},300);
+}
+
+function resetAll(){
+  menuB64=null;menuMime=null;s1Data=null;s1Result=null;leadData=null;supabaseId=null;
+  document.getElementById('menu-ph').style.display='block';
+  document.getElementById('menu-ok').style.display='none';
+  document.getElementById('menu-zone').classList.remove('has-file');
+  document.querySelectorAll('input,textarea').forEach(e=>e.value='');
+  document.querySelectorAll('select').forEach(e=>e.value='');
+  ['f-err','l-err','f-err2'].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display='none';});
+  show('intro');
+}
+
+window.onload=()=>{initRegion();show('intro');}
+</script>
+</body>
+</html>
