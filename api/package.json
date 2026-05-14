@@ -1,7 +1,0 @@
-{
-  "name": "restrorx",
-  "version": "1.0.0",
-  "engines": {
-    "node": "24.x"
-  }
-}
