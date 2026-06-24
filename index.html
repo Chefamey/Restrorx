@@ -99,8 +99,8 @@
     }
 
     .hero {
-      padding: 54px 0 28px;
-      min-height: 460px;
+      padding: 42px 0 24px;
+      min-height: 380px;
       display: grid;
       align-items: end;
     }
@@ -125,16 +125,16 @@
     }
     h1 {
       margin: 18px 0 0;
-      font-size: clamp(44px, 8vw, 94px);
-      line-height: .9;
+      font-size: clamp(42px, 7vw, 82px);
+      line-height: .92;
       letter-spacing: 0;
       max-width: 820px;
     }
     .lead {
       max-width: 760px;
       color: var(--muted);
-      font-size: 18px;
-      line-height: 1.6;
+      font-size: 17px;
+      line-height: 1.55;
       margin: 20px 0 0;
     }
     .heroStats {
@@ -302,6 +302,40 @@
       margin: -4px 0 14px;
       max-width: 760px;
     }
+    details.advanced {
+      margin-top: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(0,0,0,.12);
+      overflow: hidden;
+    }
+    details.advanced summary {
+      cursor: pointer;
+      list-style: none;
+      padding: 13px 14px;
+      color: var(--gold-2);
+      font-size: 13px;
+      font-weight: 800;
+    }
+    details.advanced summary::-webkit-details-marker { display: none; }
+    .advancedBody {
+      border-top: 1px solid var(--line);
+      padding: 0 14px 14px;
+    }
+    .quickValue {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .quickValue div {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: rgba(255,255,255,.03);
+    }
+    .quickValue strong { display: block; font-size: 15px; color: var(--ink); }
+    .quickValue span { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; line-height: 1.35; }
     .microGrid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -500,7 +534,7 @@
       .hero { padding-top: 34px; min-height: auto; }
       .nav { align-items: flex-start; flex-direction: column; padding: 14px 0; }
       .marketBadge { white-space: normal; }
-      .heroStats, .progressRail, .microGrid, .submitArea, .scoreRow, .emptyTiles, .riskGrid {
+      .heroStats, .progressRail, .microGrid, .submitArea, .scoreRow, .emptyTiles, .riskGrid, .quickValue {
         grid-template-columns: 1fr;
       }
       .progressRail { padding: 12px; }
@@ -517,7 +551,7 @@
         <div class="mark">Rx</div>
         <div>
           <strong>RestroRx</strong>
-          <span>Restaurant MRI by Chef Amey Marathe</span>
+          <span>Profit leak diagnosis by Chef Amey Marathe</span>
         </div>
       </div>
       <div class="marketBadge" id="marketBadge">Detecting market...</div>
@@ -527,28 +561,28 @@
   <header class="hero">
     <div class="wrap heroGrid">
       <div>
-        <div class="kicker">Restaurant revival intelligence</div>
-        <h1>Find the leak before it becomes the loss.</h1>
-        <p class="lead">A premium 5-minute diagnosis that reads your restaurant across profit, menu complexity, team dependency, customer return risk, and operational discipline.</p>
+        <div class="kicker">Free restaurant profit check</div>
+        <h1>Know why your restaurant is losing money.</h1>
+        <p class="lead">RestroRx helps owners quickly spot profit leaks, menu complexity, weak systems, and customer return risks before they become bigger losses.</p>
         <div class="heroStats">
-          <div class="stat"><strong>5 min</strong><span>Owner-friendly diagnosis</span></div>
-          <div class="stat"><strong>6 scores</strong><span>Financial, menu, CX, team, ops, online</span></div>
-          <div class="stat"><strong>90 days</strong><span>Revival roadmap generated instantly</span></div>
+          <div class="stat"><strong>3-5 min</strong><span>Built for busy owners</span></div>
+          <div class="stat"><strong>First fix</strong><span>What to repair before marketing</span></div>
+          <div class="stat"><strong>90 days</strong><span>Clear revival direction</span></div>
         </div>
       </div>
       <aside class="signalPanel" aria-label="RestroRx diagnostic preview">
-        <div class="panelHeader"><span>Live diagnostic model</span><span class="liveDot"></span></div>
+        <div class="panelHeader"><span>What owners receive</span><span class="liveDot"></span></div>
         <div class="signalScore">
-          <div class="miniDial">MRI</div>
+          <div class="miniDial">Rx</div>
           <div class="signalCopy">
-            <strong>Built from Chef Amey's revival framework</strong>
-            <span>Menu surgery, recipe standards, food cost control, service touchpoints, and owner accountability in one scorecard.</span>
+            <strong>A practical diagnosis, not generic AI advice</strong>
+            <span>Food cost, menu structure, recipe standards, SOPs, reviews, and owner involvement are converted into clear action priorities.</span>
           </div>
         </div>
         <div class="signalList">
-          <div class="signalItem"><span>First scan</span><strong>Menu, kitchen, team, upkeep</strong></div>
-          <div class="signalItem"><span>Core rule</span><strong>30/30 financial trigger</strong></div>
-          <div class="signalItem"><span>First fix</span><strong>80/20 menu surgery</strong></div>
+          <div class="signalItem"><span>Output 1</span><strong>Health score and risk map</strong></div>
+          <div class="signalItem"><span>Output 2</span><strong>Chef Amey's first intervention</strong></div>
+          <div class="signalItem"><span>Output 3</span><strong>14-day and 90-day action path</strong></div>
         </div>
       </aside>
     </div>
@@ -558,15 +592,20 @@
     <div class="workspace">
       <section class="card formCard">
         <div class="cardHeader">
-          <h2>Stage 1: Restaurant MRI</h2>
-          <p>Answer with best estimates. If you do not know a number, that tells us something important about the operating system.</p>
+          <h2>Restaurant Profit Leak Check</h2>
+          <p>Use best estimates. The goal is to identify what is hurting profit and repeat customers fastest.</p>
+          <div class="quickValue">
+            <div><strong>Fast</strong><span>No long consultant questionnaire upfront.</span></div>
+            <div><strong>Specific</strong><span>Numbers drive the first intervention.</span></div>
+            <div><strong>Actionable</strong><span>Clear next steps, not broad advice.</span></div>
+          </div>
         </div>
         <div class="progressRail" aria-label="Diagnosis sections">
           <div class="stepChip"><strong>01</strong>Owner</div>
-          <div class="stepChip"><strong>02</strong>Reality</div>
-          <div class="stepChip"><strong>03</strong>Leakage</div>
+          <div class="stepChip"><strong>02</strong>Business</div>
+          <div class="stepChip"><strong>03</strong>Numbers</div>
           <div class="stepChip"><strong>04</strong>Menu</div>
-          <div class="stepChip"><strong>05</strong>Ops</div>
+          <div class="stepChip"><strong>05</strong>Systems</div>
         </div>
 
         <form id="diagnosisForm">
@@ -624,7 +663,7 @@
             <div class="microGrid">
               <div>
                 <label>Business age</label>
-                <select name="businessAge" required>
+                <select name="businessAge">
                   <option value="">Select one</option>
                   <option>Less than 6 months</option>
                   <option>6-18 months</option>
@@ -674,26 +713,31 @@
                 <input name="grossProfit" type="number" min="0" max="100" required>
               </div>
             </div>
-            <div class="microGrid">
-              <div>
-                <label>Labour cost %</label>
-                <input name="labourCost" type="number" min="0" max="100" placeholder="Example: 22">
+            <details class="advanced">
+              <summary>Add advanced cost inputs for sharper accuracy</summary>
+              <div class="advancedBody">
+                <div class="microGrid">
+                  <div>
+                    <label>Labour cost %</label>
+                    <input name="labourCost" type="number" min="0" max="100" placeholder="Example: 22">
+                  </div>
+                  <div>
+                    <label>Rent % of revenue</label>
+                    <input name="rentPercent" type="number" min="0" max="100" placeholder="Example: 12">
+                  </div>
+                </div>
+                <div class="microGrid">
+                  <div>
+                    <label>Delivery commission %</label>
+                    <input name="deliveryCommission" type="number" min="0" max="100" placeholder="If applicable">
+                  </div>
+                  <div>
+                    <label>Monthly wastage estimate</label>
+                    <input name="wastageEstimate" type="number" min="0" placeholder="Amount or best guess">
+                  </div>
+                </div>
               </div>
-              <div>
-                <label>Rent % of revenue</label>
-                <input name="rentPercent" type="number" min="0" max="100" placeholder="Example: 12">
-              </div>
-            </div>
-            <div class="microGrid">
-              <div>
-                <label>Delivery commission %</label>
-                <input name="deliveryCommission" type="number" min="0" max="100" placeholder="If applicable">
-              </div>
-              <div>
-                <label>Monthly wastage estimate</label>
-                <input name="wastageEstimate" type="number" min="0" placeholder="Amount or best guess">
-              </div>
-            </div>
+            </details>
           </div>
 
           <div class="sectionBlock">
@@ -704,8 +748,13 @@
                 <input name="menuItems" type="number" min="1" placeholder="Example: 72">
               </div>
               <div>
-                <label>% sales from top 10 items</label>
-                <input name="topTenSalesPercent" type="number" min="0" max="100" placeholder="Example: 65">
+                <label>Do top 10 items drive most sales?</label>
+                <select name="topTenSalesPercent">
+                  <option value="">Not sure</option>
+                  <option value="80">Yes, very strongly</option>
+                  <option value="60">Somewhat</option>
+                  <option value="35">No, sales are spread out</option>
+                </select>
               </div>
             </div>
             <label>Do you know dish-wise recipe costing?</label>
@@ -722,10 +771,15 @@
               <option>Documented but not followed consistently</option>
               <option>No proper recipe cards</option>
             </select>
-            <label>Top 3 selling items</label>
-            <input name="topSellingItems" placeholder="Example: Biryani, butter chicken, dal makhani">
-            <label>Bottom / slow-moving items you suspect are dead weight</label>
-            <input name="slowMovingItems" placeholder="Optional">
+            <details class="advanced">
+              <summary>Add menu details if you know them</summary>
+              <div class="advancedBody">
+                <label>Top 3 selling items</label>
+                <input name="topSellingItems" placeholder="Example: Biryani, butter chicken, dal makhani">
+                <label>Bottom / slow-moving items you suspect are dead weight</label>
+                <input name="slowMovingItems" placeholder="Optional">
+              </div>
+            </details>
           </div>
 
           <div class="sectionBlock">
@@ -813,17 +867,17 @@
 
       <aside class="card resultCard">
         <div class="cardHeader">
-          <h2>Your MRI Result</h2>
-          <p>Results appear here after the diagnosis runs.</p>
+          <h2>Your Profit Leak Result</h2>
+          <p>Results appear here after the check runs.</p>
         </div>
         <div class="resultBody">
           <div id="emptyState" class="emptyState">
-            <p class="lead">RestroRx will generate a health score, risk map, first intervention, key findings, immediate actions, and a 90-day revival plan.</p>
+            <p class="lead">RestroRx will identify the likely leak, the first fix to prioritise, and the action path to stabilise profit and repeat customers.</p>
             <div class="emptyTiles">
-              <div class="emptyTile"><span>Profit</span><strong>Leakage</strong></div>
-              <div class="emptyTile"><span>Menu</span><strong>Complexity</strong></div>
-              <div class="emptyTile"><span>Team</span><strong>Dependency</strong></div>
-              <div class="emptyTile"><span>Customer</span><strong>Return Risk</strong></div>
+              <div class="emptyTile"><span>Find</span><strong>Money leaks</strong></div>
+              <div class="emptyTile"><span>Prioritise</span><strong>First fix</strong></div>
+              <div class="emptyTile"><span>Reduce</span><strong>Menu chaos</strong></div>
+              <div class="emptyTile"><span>Improve</span><strong>Repeat visits</strong></div>
             </div>
           </div>
 
@@ -839,7 +893,7 @@
             <div id="bars" class="bars"></div>
             <h3>Risk MRI</h3>
             <div class="riskGrid" id="riskGrid"></div>
-            <h3>Chef Amey's First Intervention</h3>
+            <h3>Fix This First</h3>
             <p id="firstIntervention"></p>
             <h3>Key Findings</h3>
             <ul id="findings"></ul>
@@ -850,7 +904,7 @@
             <h3>Chef Amey Note</h3>
             <p id="chefNote"></p>
             <div class="ctaRow">
-              <button class="secondary" id="unlockCx" type="button">Unlock Stage 2 Customer Journey Audit</button>
+              <button class="secondary" id="unlockCx" type="button">Add Customer Journey Audit</button>
               <a id="bookLink" class="whatsapp" target="_blank" rel="noreferrer">Book on WhatsApp</a>
             </div>
             <div id="saveStatus" class="notice hidden">Diagnosis saved to Chef Amey's private dashboard.</div>
