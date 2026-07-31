@@ -3,26 +3,30 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>RestroRx Dashboard</title>
+  <meta name="robots" content="noindex,nofollow">
+  <title>RestroRx Private Dashboard</title>
   <style>
     :root { --bg:#101210; --panel:#181c19; --text:#f5efe4; --muted:#b8ad9b; --gold:#d8a84a; --line:rgba(245,239,228,.13); font-family:Inter,system-ui,sans-serif; }
     * { box-sizing:border-box; }
     body { margin:0; min-height:100vh; background:var(--bg); color:var(--text); }
     .wrap { max-width:1180px; margin:0 auto; padding:28px 18px; }
     header { display:flex; justify-content:space-between; gap:16px; align-items:center; margin-bottom:18px; }
-    h1 { margin:0; font-size:40px; }
+    h1 { margin:0; font-size:clamp(30px,6vw,42px); }
     .card { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:16px; margin-bottom:14px; }
-    input,button,select { border-radius:8px; padding:12px; border:1px solid var(--line); background:#0b0d0c; color:var(--text); }
+    button,select { border-radius:8px; padding:12px; border:1px solid var(--line); background:#0b0d0c; color:var(--text); }
     button { background:var(--gold); color:#16120a; font-weight:800; cursor:pointer; }
-    table { width:100%; border-collapse:collapse; font-size:14px; }
+    .tableWrap { overflow-x:auto; }
+    table { width:100%; border-collapse:collapse; font-size:14px; min-width:920px; }
     th,td { padding:12px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }
     th { color:var(--gold); }
     .muted { color:var(--muted); }
     .hidden { display:none; }
     .pill { display:inline-block; padding:5px 8px; border-radius:999px; background:rgba(216,168,74,.14); color:var(--gold); }
-    .actions { display:flex; gap:10px; flex-wrap:wrap; }
+    .actions { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
     a { color:var(--gold); }
-    pre { white-space:pre-wrap; color:var(--muted); max-height:360px; overflow:auto; }
+    pre { white-space:pre-wrap; overflow-wrap:anywhere; color:var(--muted); max-height:360px; overflow:auto; }
+    .notice { padding:12px; border:1px solid var(--line); color:var(--muted); }
+    @media (max-width:640px) { header { align-items:flex-start; flex-direction:column; } .actions > * { width:100%; } }
   </style>
 </head>
 <body>
@@ -30,75 +34,70 @@
     <header>
       <div>
         <h1>RestroRx Leads</h1>
-        <p class="muted">Private dashboard for Chef Amey Marathe</p>
+        <p class="muted">Private operating dashboard for Chef Amey Marathe</p>
       </div>
-      <button id="exportBtn" class="hidden">Export CSV</button>
+      <button id="exportBtn" disabled>Export CSV</button>
     </header>
 
-    <section id="login" class="card">
-      <h2>Enter Password</h2>
-      <input id="password" type="password" placeholder="Dashboard password">
-      <button id="loginBtn">Open Dashboard</button>
-      <p class="muted">Password: RestroRx2024</p>
-    </section>
-
-    <section id="app" class="hidden">
-      <div class="card actions">
-        <select id="countryFilter">
-          <option value="">All countries</option>
-          <option>India</option>
-          <option>USA</option>
-        </select>
-        <select id="statusFilter">
-          <option value="">All statuses</option>
-          <option>Healthy</option>
-          <option>Watch Zone</option>
-          <option>Critical</option>
-        </select>
-        <button id="refreshBtn">Refresh</button>
-      </div>
-      <div class="card">
-        <table>
-          <thead>
-            <tr><th>Date</th><th>Lead</th><th>Restaurant</th><th>Score</th><th>Financials</th><th>Action</th></tr>
-          </thead>
-          <tbody id="rows"></tbody>
-        </table>
-      </div>
-      <div id="detail" class="card hidden"></div>
-    </section>
+    <div class="card actions">
+      <label for="countryFilter" class="muted">Country</label>
+      <select id="countryFilter">
+        <option value="">All countries</option>
+        <option>India</option>
+        <option>USA</option>
+      </select>
+      <label for="statusFilter" class="muted">Status</label>
+      <select id="statusFilter">
+        <option value="">All statuses</option>
+        <option>Healthy</option>
+        <option>Watch Zone</option>
+        <option>Critical</option>
+      </select>
+      <button id="refreshBtn">Refresh</button>
+    </div>
+    <p id="notice" class="card notice">Loading secure lead data…</p>
+    <div class="card tableWrap">
+      <table>
+        <thead><tr><th>Date</th><th>Lead</th><th>Restaurant</th><th>Score</th><th>Financials</th><th>Action</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <div id="detail" class="card hidden"></div>
   </div>
 
-  <script type="module">
-    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-    const SUPABASE_URL = "https://dduiwrznrzmimqvmrcdg.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkdWl3cnpucnptaW1xdm1yY2RnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1MjY5NjAsImV4cCI6MjA5NDEwMjk2MH0.1-rjDnGkykflVZWnaHLGk1-b_oFqP1LX4dwb3Ro9IpY";
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  <script>
     let leads = [];
 
     function esc(value) {
       return String(value ?? "").replace(/[&<>"']/g, (c) => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
     }
 
-    async function loadLeads() {
-      let query = supabase.from("leads").select("*").order("created_at", { ascending:false }).limit(200);
+    function filteredLeads() {
       const country = document.getElementById("countryFilter").value;
       const status = document.getElementById("statusFilter").value;
-      if (country) query = query.eq("country", country);
-      if (status) query = query.eq("status", status);
-      const { data, error } = await query;
-      if (error) {
-        alert(error.message);
-        return;
+      return leads.filter((lead) => (!country || lead.country === country) && (!status || lead.status === status));
+    }
+
+    async function loadLeads() {
+      const notice = document.getElementById("notice");
+      notice.textContent = "Loading secure lead data…";
+      try {
+        const response = await fetch("/api/admin-leads", { headers: { Accept: "application/json" }, cache: "no-store" });
+        const data = await response.json();
+        if (!response.ok || !data.ok) throw new Error(data.error || "Unable to load leads.");
+        leads = data.leads || [];
+        notice.textContent = `${leads.length} secure lead${leads.length === 1 ? "" : "s"} loaded.`;
+        document.getElementById("exportBtn").disabled = !leads.length;
+        renderRows();
+      } catch (error) {
+        notice.textContent = error.message;
       }
-      leads = data || [];
-      renderRows();
     }
 
     function renderRows() {
       const tbody = document.getElementById("rows");
       tbody.innerHTML = "";
-      leads.forEach((lead, index) => {
+      filteredLeads().forEach((lead) => {
         const msg = encodeURIComponent(`Hi, this is Chef Amey. I reviewed your RestroRx diagnosis for ${lead.restaurant_name}. Your score is ${lead.score}. Let's discuss your revival plan.`);
         const tr = document.createElement("tr");
         tr.innerHTML = `
@@ -107,57 +106,36 @@
           <td><strong>${esc(lead.restaurant_name)}</strong><br><span class="muted">${esc(lead.location)} | ${esc(lead.country)}</span></td>
           <td><span class="pill">${esc(lead.score)} / ${esc(lead.status)}</span></td>
           <td>Revenue: ${esc(lead.monthly_revenue)}<br>FC: ${esc(lead.food_cost)}%<br>GP: ${esc(lead.gross_profit)}%</td>
-          <td><button data-index="${index}">View</button><br><br><a target="_blank" href="https://wa.me/${String(lead.phone || '').replace(/\\D/g,'')}?text=${msg}">WhatsApp</a></td>
-        `;
+          <td><button class="viewBtn" data-id="${esc(lead.id)}">View</button><br><br><a target="_blank" rel="noreferrer" href="https://wa.me/${String(lead.phone || "").replace(/\D/g, "")}?text=${msg}">WhatsApp</a></td>`;
         tbody.appendChild(tr);
       });
-      tbody.querySelectorAll("button").forEach((button) => {
-        button.addEventListener("click", () => showDetail(leads[Number(button.dataset.index)]));
-      });
+      tbody.querySelectorAll(".viewBtn").forEach((button) => button.addEventListener("click", () => showDetail(leads.find((lead) => lead.id === button.dataset.id))));
     }
 
     function showDetail(lead) {
+      if (!lead) return;
       const detail = document.getElementById("detail");
       detail.classList.remove("hidden");
-      detail.innerHTML = `
-        <h2>${esc(lead.restaurant_name)}</h2>
-        <p class="muted">${esc(lead.owner_name)} | ${esc(lead.location)} | Score ${esc(lead.score)}</p>
-        <h3>Diagnosis</h3>
-        <pre>${esc(JSON.stringify(lead.diagnosis, null, 2))}</pre>
-        <h3>Input Data</h3>
-        <pre>${esc(JSON.stringify(lead.input_data, null, 2))}</pre>
-        <h3>CX Data</h3>
-        <pre>${esc(JSON.stringify(lead.cx_data || {}, null, 2))}</pre>
-      `;
+      detail.innerHTML = `<h2>${esc(lead.restaurant_name)}</h2><p class="muted">${esc(lead.owner_name)} | ${esc(lead.location)} | Score ${esc(lead.score)}</p><h3>Diagnosis</h3><pre>${esc(JSON.stringify(lead.diagnosis, null, 2))}</pre><h3>Input Data</h3><pre>${esc(JSON.stringify(lead.input_data, null, 2))}</pre><h3>CX Data</h3><pre>${esc(JSON.stringify(lead.cx_data || {}, null, 2))}</pre>`;
       detail.scrollIntoView({ behavior:"smooth" });
     }
 
     function exportCsv() {
       const headers = ["created_at","owner_name","phone","email","restaurant_name","location","country","score","status","monthly_revenue","food_cost","gross_profit"];
-      const lines = [headers.join(",")].concat(leads.map((lead) => headers.map((h) => `"${String(lead[h] ?? "").replace(/"/g,'""')}"`).join(",")));
-      const blob = new Blob([lines.join("\\n")], { type:"text/csv" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "restrorx-leads.csv";
-      a.click();
+      const lines = [headers.join(",")].concat(filteredLeads().map((lead) => headers.map((header) => `"${String(lead[header] ?? "").replace(/"/g, '""')}"`).join(",")));
+      const url = URL.createObjectURL(new Blob([lines.join("\n")], { type:"text/csv" }));
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = "restrorx-leads.csv";
+      anchor.click();
       URL.revokeObjectURL(url);
     }
 
-    document.getElementById("loginBtn").addEventListener("click", () => {
-      if (document.getElementById("password").value !== "RestroRx2024") {
-        alert("Wrong password");
-        return;
-      }
-      document.getElementById("login").classList.add("hidden");
-      document.getElementById("app").classList.remove("hidden");
-      document.getElementById("exportBtn").classList.remove("hidden");
-      loadLeads();
-    });
     document.getElementById("refreshBtn").addEventListener("click", loadLeads);
-    document.getElementById("countryFilter").addEventListener("change", loadLeads);
-    document.getElementById("statusFilter").addEventListener("change", loadLeads);
+    document.getElementById("countryFilter").addEventListener("change", renderRows);
+    document.getElementById("statusFilter").addEventListener("change", renderRows);
     document.getElementById("exportBtn").addEventListener("click", exportCsv);
+    loadLeads();
   </script>
 </body>
 </html>

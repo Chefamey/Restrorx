@@ -3,6 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A free 3–5 minute restaurant profit-leak diagnosis by Chef Amey Marathe, with a health score, first intervention, and 90-day action path.">
+  <meta name="theme-color" content="#0b0c0a">
+  <meta property="og:title" content="RestroRx | Restaurant Profit Leak Diagnosis">
+  <meta property="og:description" content="Find the likely money leak, the first fix, and a practical restaurant revival path.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://restrorx.vercel.app/">
+  <link rel="canonical" href="https://restrorx.vercel.app/">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23171b16'/%3E%3Ctext x='32' y='42' text-anchor='middle' font-size='30' font-family='Arial' font-weight='700' fill='%23f0cf89'%3ERx%3C/text%3E%3C/svg%3E">
   <title>RestroRx | Restaurant MRI</title>
   <style>
     :root {
@@ -396,6 +404,14 @@
       padding-top: 4px;
     }
     .fine { color: var(--soft); font-size: 12px; line-height: 1.45; margin: 0; }
+    .consentRow { display: grid; grid-template-columns: 20px 1fr; gap: 10px; align-items: start; margin: 16px 0; }
+    .consentRow input { width: 18px; min-height: 18px; margin: 2px 0 0; accent-color: var(--gold); }
+    .consentRow label { margin: 0; line-height: 1.5; }
+    .consentRow a, footer a { color: var(--gold-2); }
+    .hp { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+    .formError { margin: 0 0 14px; border: 1px solid rgba(216,107,93,.45); background: rgba(216,107,93,.1); color: #ffd9d3; border-radius: 8px; padding: 11px 12px; font-size: 13px; line-height: 1.45; }
+    footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--soft); font-size: 12px; line-height: 1.6; }
+    .footerRow { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
 
     .resultCard {
       position: sticky;
@@ -564,6 +580,7 @@
         <div class="kicker">Free restaurant profit check</div>
         <h1>Know why your restaurant is losing money.</h1>
         <p class="lead">RestroRx helps owners quickly spot profit leaks, menu complexity, weak systems, and customer return risks before they become bigger losses.</p>
+        <p class="lead"><strong style="color:var(--gold-2)">Founding consultations are now open.</strong> Complete the free diagnosis to see whether a focused review with Chef Amey is the right next step.</p>
         <div class="heroStats">
           <div class="stat"><strong>3-5 min</strong><span>Built for busy owners</span></div>
           <div class="stat"><strong>First fix</strong><span>What to repair before marketing</span></div>
@@ -609,6 +626,10 @@
         </div>
 
         <form id="diagnosisForm">
+          <div class="hp" aria-hidden="true">
+            <label for="website">Leave this field blank</label>
+            <input id="website" name="website" tabindex="-1" autocomplete="off">
+          </div>
           <div class="sectionBlock">
             <h3><span>01</span> Owner Details</h3>
             <div class="microGrid">
@@ -858,8 +879,13 @@
             <textarea name="problem" required></textarea>
           </div>
 
+          <div class="consentRow">
+            <input id="consent" name="consent" type="checkbox" required>
+            <label for="consent">I agree that RestroRx may securely store my submitted restaurant information and diagnosis for follow-up by Chef Amey. I have read the <a href="/privacy" target="_blank">privacy and diagnostic terms</a>.</label>
+          </div>
+          <div id="formError" class="formError hidden" role="alert"></div>
           <div class="submitArea">
-            <p class="fine">Your diagnosis is stored privately in Chef Amey's dashboard so the follow-up can be specific, not generic.</p>
+            <p class="fine">Your estimates create an initial diagnostic, not an accounting audit. Your record is kept in Chef Amey's private dashboard for specific follow-up.</p>
             <button id="submitBtn" type="submit">Run Restaurant MRI</button>
           </div>
         </form>
@@ -907,7 +933,7 @@
               <button class="secondary" id="unlockCx" type="button">Add Customer Journey Audit</button>
               <a id="bookLink" class="whatsapp" target="_blank" rel="noreferrer">Book on WhatsApp</a>
             </div>
-            <div id="saveStatus" class="notice hidden">Diagnosis saved to Chef Amey's private dashboard.</div>
+            <div id="saveStatus" class="notice hidden" role="status">Diagnosis saved securely to Chef Amey's private dashboard.</div>
           </div>
 
           <div id="cxPanel" class="hidden">
@@ -943,15 +969,25 @@
     </div>
   </main>
 
-  <script type="module">
-    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+  <footer>
+    <div class="wrap footerRow">
+      <span>© 2026 RestroRx by Chef Amey Marathe. Initial diagnostic only; results depend on the inputs supplied.</span>
+      <span><a href="/privacy">Privacy & diagnostic terms</a> · <a href="https://wa.me/918806808949" rel="noreferrer">Contact</a></span>
+    </div>
+  </footer>
 
-    const SUPABASE_URL = "https://dduiwrznrzmimqvmrcdg.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkdWl3cnpucnptaW1xdm1yY2RnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1MjY5NjAsImV4cCI6MjA5NDEwMjk2MH0.1-rjDnGkykflVZWnaHLGk1-b_oFqP1LX4dwb3Ro9IpY";
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  <script>
     let currentLeadId = null;
+    let currentLeadToken = null;
     let currentPayload = null;
     let currentDiagnosis = null;
+
+    document.querySelectorAll("label:not([for])").forEach((label, index) => {
+      const control = label.nextElementSibling;
+      if (!control || !/^(INPUT|SELECT|TEXTAREA)$/.test(control.tagName)) return;
+      control.id ||= `field-${index + 1}`;
+      label.htmlFor = control.id;
+    });
 
     const countrySelect = document.getElementById("country");
     const marketBadge = document.getElementById("marketBadge");
@@ -1034,36 +1070,24 @@
     }
 
     async function saveLead(payload, diagnosis) {
-      const record = {
-        owner_name: payload.ownerName,
-        phone: payload.phone,
-        email: payload.email,
-        restaurant_name: payload.restaurantName,
-        location: payload.location,
-        country: payload.market,
-        monthly_revenue: Number(payload.monthlyRevenue || 0),
-        food_cost: Number(payload.foodCost || 0),
-        gross_profit: Number(payload.grossProfit || 0),
-        rating: Number(payload.rating || 0),
-        input_data: payload,
-        diagnosis,
-        score: Number(diagnosis.score || 0),
-        status: diagnosis.status || "Watch Zone"
-      };
-      const { data, error } = await supabase.from("leads").insert(record).select("id").single();
-      if (error) {
-        throw new Error(`Diagnosis shown, but lead was not saved to Supabase: ${error.message}`);
-      }
-      if (!data?.id) {
-        throw new Error("Diagnosis shown, but Supabase did not return a lead ID.");
-      }
+      const response = await fetch("/api/leads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ input: payload, diagnosis })
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.ok || !data.id) throw new Error(data.error || "Secure saving is temporarily unavailable.");
       currentLeadId = data.id;
+      currentLeadToken = data.updateToken;
       return data.id;
     }
 
     document.getElementById("diagnosisForm").addEventListener("submit", async (event) => {
       event.preventDefault();
       const button = document.getElementById("submitBtn");
+      const formError = document.getElementById("formError");
+      formError.classList.add("hidden");
+      document.getElementById("saveStatus").classList.add("hidden");
       button.disabled = true;
       button.textContent = "Diagnosing...";
       currentPayload = { ...formToObject(event.currentTarget), market: detectMarket() };
@@ -1074,14 +1098,21 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(currentPayload)
         });
-        const data = await response.json();
+        const data = await response.json().catch(() => ({}));
         if (!data.ok || !data.diagnosis) throw new Error(data.error || "Diagnosis failed");
         currentDiagnosis = data.diagnosis;
         renderDiagnosis(currentDiagnosis);
-        await saveLead(currentPayload, currentDiagnosis);
-        document.getElementById("saveStatus").classList.remove("hidden");
+        try {
+          await saveLead(currentPayload, currentDiagnosis);
+          document.getElementById("saveStatus").classList.remove("hidden");
+        } catch (saveError) {
+          formError.textContent = saveError.message;
+          formError.classList.remove("hidden");
+        }
       } catch (error) {
-        alert(error.message);
+        formError.textContent = error.message;
+        formError.classList.remove("hidden");
+        formError.scrollIntoView({ behavior: "smooth", block: "center" });
       } finally {
         button.disabled = false;
         button.textContent = "Run Restaurant MRI";
@@ -1096,8 +1127,19 @@
     document.getElementById("cxForm").addEventListener("submit", async (event) => {
       event.preventDefault();
       const cx = formToObject(event.currentTarget);
-      if (currentLeadId) {
-        await supabase.from("leads").update({ cx_data: cx }).eq("id", currentLeadId);
+      if (!currentLeadId || !currentLeadToken) {
+        alert("Save the main diagnosis before adding the customer journey audit.");
+        return;
+      }
+      const response = await fetch("/api/leads", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: currentLeadId, updateToken: currentLeadToken, cx })
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.ok) {
+        alert(data.error || "The CX audit could not be saved.");
+        return;
       }
       alert("CX audit saved. Chef Amey can now see the deeper customer journey data.");
     });
