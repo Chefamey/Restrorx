@@ -1,21 +1,14 @@
 const GEMINI_ENDPOINT =
   "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
-
-function sendJson(res, status, body) {
-  res.statusCode = status;
-  res.setHeader("Content-Type", "application/json");
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "POST,OPTIONS,GET");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-  res.end(JSON.stringify(body));
-}
+const { allowRequest, parseBody, sendJson } = require("../lib/http");
+const { validateInput } = require("../lib/validation");
 
 function fallbackDiagnosis(input) {
   const monthlyRevenue = Number(input.monthlyRevenue || 0);
   const foodCost = Number(input.foodCost || 0);
   const grossProfit = Number(input.grossProfit || 0);
-  const menuItems = Number(input.menuItems || 0);
-  const rating = Number(input.rating || 0);
+  const menuItems = input.menuItems ? Number(input.menuItems) : 35;
+  const rating = input.rating ? Number(input.rating) : 4;
   const labourCost = Number(input.labourCost || input.laborCost || 0);
   const rentPercent = Number(input.rentPercent || 0);
   const market = input.market || input.country || "India";
@@ -94,10 +87,6 @@ function fallbackDiagnosis(input) {
 }
 
 module.exports = async function handler(req, res) {
-  if (req.method === "OPTIONS") {
-    return sendJson(res, 200, { ok: true });
-  }
-
   if (req.method === "GET") {
     return sendJson(res, 200, {
       ok: true,
@@ -109,22 +98,43 @@ module.exports = async function handler(req, res) {
     return sendJson(res, 405, { error: "Method not allowed" });
   }
 
-  let input = {};
+  if (!allowRequest(req, "diagnose", 10)) {
+    return sendJson(res, 429, { ok: false, error: "Too many attempts. Please try again in a few minutes." });
+  }
+
+  if (Number(req.headers["content-length"] || 0) > 30000) {
+    return sendJson(res, 413, { ok: false, error: "Submission is too large." });
+  }
+
+  let rawInput = {};
   try {
-    input = req.body || {};
-    if (typeof input === "string") input = JSON.parse(input);
+    rawInput = parseBody(req);
   } catch (error) {
-    return sendJson(res, 400, { error: "Invalid JSON body" });
+    return sendJson(res, 400, { ok: false, error: "Invalid JSON body." });
+  }
+
+  const { input, errors } = validateInput(rawInput);
+  if (errors.length) {
+    return sendJson(res, 422, { ok: false, error: errors[0], errors });
   }
 
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     return sendJson(res, 200, {
       ok: true,
-      source: "fallback",
+      source: "restrorx-engine",
       diagnosis: fallbackDiagnosis(input)
     });
   }
+
+  const {
+    ownerName: _ownerName,
+    phone: _phone,
+    email: _email,
+    consent: _consent,
+    website: _website,
+    ...diagnosticInput
+  } = input;
 
   const prompt = `
 You are RestroRx, Chef Amey Marathe's restaurant revival diagnostic engine.
@@ -176,7 +186,7 @@ Return only valid JSON with this exact shape:
 }
 
 Restaurant input:
-${JSON.stringify(input, null, 2)}
+${JSON.stringify(diagnosticInput, null, 2)}
 `;
 
   try {
@@ -196,8 +206,7 @@ ${JSON.stringify(input, null, 2)}
     if (!response.ok) {
       return sendJson(res, 200, {
         ok: true,
-        source: "fallback-after-gemini-error",
-        geminiError: data.error?.message || "Gemini request failed",
+        source: "restrorx-engine",
         diagnosis: fallbackDiagnosis(input)
       });
     }
@@ -206,18 +215,20 @@ ${JSON.stringify(input, null, 2)}
     if (!text) {
       return sendJson(res, 200, {
         ok: true,
-        source: "fallback-empty-gemini",
+        source: "restrorx-engine",
         diagnosis: fallbackDiagnosis(input)
       });
     }
 
     const diagnosis = JSON.parse(text);
-    return sendJson(res, 200, { ok: true, source: "gemini", diagnosis });
+    if (!diagnosis || !Number.isFinite(Number(diagnosis.score)) || !Array.isArray(diagnosis.actions)) {
+      throw new Error("Invalid provider response");
+    }
+    return sendJson(res, 200, { ok: true, source: "enhanced", diagnosis });
   } catch (error) {
     return sendJson(res, 200, {
       ok: true,
-      source: "fallback-exception",
-      error: error.message,
+      source: "restrorx-engine",
       diagnosis: fallbackDiagnosis(input)
     });
   }
