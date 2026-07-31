@@ -19,22 +19,13 @@ create table if not exists public.leads (
 );
 
 alter table public.leads enable row level security;
+alter table public.leads force row level security;
 
 drop policy if exists "allow_public_insert_leads" on public.leads;
-create policy "allow_public_insert_leads"
-on public.leads for insert
-to anon
-with check (true);
-
 drop policy if exists "allow_public_update_leads" on public.leads;
-create policy "allow_public_update_leads"
-on public.leads for update
-to anon
-using (true)
-with check (true);
-
 drop policy if exists "allow_public_read_leads" on public.leads;
-create policy "allow_public_read_leads"
-on public.leads for select
-to anon
-using (true);
+
+revoke all on table public.leads from anon, authenticated;
+
+-- The public form and private dashboard use server-only Vercel functions with
+-- SUPABASE_SERVICE_ROLE_KEY. No browser role should read, insert, or update PII.
