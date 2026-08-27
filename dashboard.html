@@ -60,7 +60,7 @@
       <div class="card">
         <table>
           <thead>
-            <tr><th>Date</th><th>Lead</th><th>Restaurant</th><th>Score</th><th>Financials</th><th>Action</th></tr>
+            <tr><th>Date</th><th>Lead</th><th>Restaurant</th><th>MRI</th><th>Financials</th><th>Action</th></tr>
           </thead>
           <tbody id="rows"></tbody>
         </table>
@@ -93,6 +93,9 @@
       }
       leads = data || [];
       renderRows();
+      if (leads.length === 0) {
+        document.getElementById("rows").innerHTML = `<tr><td colspan="6" class="muted">No leads found yet. If you already submitted the form, check Supabase Table Editor to confirm whether the lead was saved.</td></tr>`;
+      }
     }
 
     function renderRows() {
@@ -105,8 +108,8 @@
           <td>${esc(new Date(lead.created_at).toLocaleString())}</td>
           <td><strong>${esc(lead.owner_name)}</strong><br><span class="muted">${esc(lead.phone)}<br>${esc(lead.email)}</span></td>
           <td><strong>${esc(lead.restaurant_name)}</strong><br><span class="muted">${esc(lead.location)} | ${esc(lead.country)}</span></td>
-          <td><span class="pill">${esc(lead.score)} / ${esc(lead.status)}</span></td>
-          <td>Revenue: ${esc(lead.monthly_revenue)}<br>FC: ${esc(lead.food_cost)}%<br>GP: ${esc(lead.gross_profit)}%</td>
+          <td><span class="pill">${esc(lead.score)} / ${esc(lead.status)}</span><br><span class="muted">Leakage: ${esc(lead.profit_leakage_score || lead.diagnosis?.profitLeakageScore || "--")}<br>Menu: ${esc(lead.menu_complexity_risk || lead.diagnosis?.menuComplexityRisk || "--")}</span></td>
+          <td>Revenue: ${esc(lead.monthly_revenue)}<br>FC: ${esc(lead.food_cost)}%<br>GP: ${esc(lead.gross_profit)}%<br><span class="muted">Owner: ${esc(lead.owner_readiness_score || lead.diagnosis?.ownerReadinessScore || "--")}</span></td>
           <td><button data-index="${index}">View</button><br><br><a target="_blank" href="https://wa.me/${String(lead.phone || '').replace(/\\D/g,'')}?text=${msg}">WhatsApp</a></td>
         `;
         tbody.appendChild(tr);
@@ -124,6 +127,8 @@
         <p class="muted">${esc(lead.owner_name)} | ${esc(lead.location)} | Score ${esc(lead.score)}</p>
         <h3>Diagnosis</h3>
         <pre>${esc(JSON.stringify(lead.diagnosis, null, 2))}</pre>
+        <h3>Chef Amey's First Intervention</h3>
+        <p class="muted">${esc(lead.first_intervention || lead.diagnosis?.firstIntervention || "")}</p>
         <h3>Input Data</h3>
         <pre>${esc(JSON.stringify(lead.input_data, null, 2))}</pre>
         <h3>CX Data</h3>
