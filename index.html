@@ -242,7 +242,7 @@
     }
     .progressRail {
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: 8px;
       padding: 14px 20px;
       border-bottom: 1px solid var(--line);
@@ -388,6 +388,9 @@
       gap: 14px;
       padding-top: 4px;
     }
+    #diagnosisError { grid-column: 1 / -1; grid-row: 2; }
+    .consent { display: flex; gap: 8px; align-items: start; }
+    .consent input { width: auto; min-height: 0; flex: none; margin: 3px 0 0; }
     .fine { color: var(--soft); font-size: 12px; line-height: 1.45; margin: 0; }
 
     .resultCard {
@@ -396,7 +399,7 @@
       overflow: hidden;
     }
     .resultBody { padding: 18px; }
-    .hidden { display: none; }
+    #result { scroll-margin-top: 96px; }
     .emptyState {
       min-height: 420px;
       display: grid;
@@ -510,6 +513,7 @@
       font-size: 13px;
       line-height: 1.45;
     }
+    .notice[role="alert"] { border-color: #b97962; }
     #cxPanel {
       margin-top: 16px;
       border-top: 1px solid var(--line);
@@ -535,7 +539,9 @@
       form { padding: 0 14px 18px; }
       .cardHeader { padding: 16px; }
       .signalScore { grid-template-columns: 1fr; }
+      #result { scroll-margin-top: 150px; }
     }
+    .hidden { display: none; }
   </style>
 </head>
 <body>
@@ -552,8 +558,8 @@
     <div class="wrap heroGrid">
       <div>
         <div class="kicker">Free restaurant profit check</div>
-        <h1>Know why your restaurant is losing money.</h1>
-        <p class="lead">RestroRx helps owners quickly spot profit leaks, menu complexity, weak systems, and customer return risks before they become bigger losses.</p>
+        <h1>Find what may be hurting your restaurant’s margins.</h1>
+        <p class="lead">Use your own numbers and operating answers to spot potential cost, menu and service problems and decide what to check first.</p>
         <div class="heroStats">
           <div class="stat"><strong>3-5 min</strong><span>Built for busy owners</span></div>
           <div class="stat"><strong>First fix</strong><span>What to repair before marketing</span></div>
@@ -565,8 +571,8 @@
         <div class="signalScore">
           <div class="miniDial">Rx</div>
           <div class="signalCopy">
-            <strong>A practical diagnosis, not generic AI advice</strong>
-            <span>Food cost, menu structure, recipe standards, SOPs, reviews, and owner involvement are converted into clear action priorities.</span>
+            <strong>A practical screening built for restaurant owners</strong>
+            <span>Your costs, menu size, recipe costing, written procedures and review rating inform the screening score.</span>
           </div>
         </div>
         <div class="signalList">
@@ -585,48 +591,21 @@
           <h2>Restaurant Profit Leak Check</h2>
           <p>Use best estimates. The goal is to identify what is hurting profit and repeat customers fastest.</p>
           <div class="quickValue">
-            <div><strong>Fast</strong><span>No long consultant questionnaire upfront.</span></div>
+            <div><strong>Fast</strong><span>See results before sharing contact details.</span></div>
             <div><strong>Specific</strong><span>Numbers drive the first intervention.</span></div>
-            <div><strong>Actionable</strong><span>Clear next steps, not broad advice.</span></div>
+            <div><strong>Actionable</strong><span>Start with one check you can run this week.</span></div>
           </div>
         </div>
         <div class="progressRail" aria-label="Diagnosis sections">
-          <div class="stepChip"><strong>01</strong>Owner</div>
-          <div class="stepChip"><strong>02</strong>Business</div>
-          <div class="stepChip"><strong>03</strong>Numbers</div>
-          <div class="stepChip"><strong>04</strong>Menu</div>
-          <div class="stepChip"><strong>05</strong>Systems</div>
+          <div class="stepChip"><strong>01</strong>Business</div>
+          <div class="stepChip"><strong>02</strong>Numbers</div>
+          <div class="stepChip"><strong>03</strong>Menu</div>
+          <div class="stepChip"><strong>04</strong>Systems</div>
         </div>
 
-        <form id="diagnosisForm">
+        <form id="diagnosisForm" method="post" action="/api/diagnose">
           <div class="sectionBlock">
-            <h3><span>01</span> Owner Details</h3>
-            <div class="microGrid">
-              <div>
-                <label>Your name</label>
-                <input name="ownerName" autocomplete="name" required>
-              </div>
-              <div>
-                <label>WhatsApp / phone</label>
-                <input name="phone" autocomplete="tel" required>
-              </div>
-            </div>
-            <label>Email</label>
-            <input name="email" type="email" autocomplete="email" required>
-          </div>
-
-          <div class="sectionBlock">
-            <h3><span>02</span> Business Reality Check</h3>
-            <div class="microGrid">
-              <div>
-                <label>Restaurant name</label>
-                <input name="restaurantName" required>
-              </div>
-              <div>
-                <label>City / location</label>
-                <input name="location" required>
-              </div>
-            </div>
+            <h3><span>01</span> Business Reality Check</h3>
             <div class="microGrid">
               <div>
                 <label>Country</label>
@@ -689,41 +668,41 @@
           </div>
 
           <div class="sectionBlock">
-            <h3><span>03</span> Profit Leakage Scan</h3>
-            <p class="sectionNote">The goal is not perfect accounting. The goal is to locate the biggest leak fast.</p>
+            <h3><span>02</span> Profit Leakage Scan</h3>
+            <p class="sectionNote">Use figures from the same month. Gross margin is what remains after direct costs, expressed as a percentage of sales. Include food cost in those direct costs.</p>
             <label>Monthly revenue</label>
-            <input name="monthlyRevenue" type="number" min="0" required>
+            <input name="monthlyRevenue" type="number" min="0.01" max="1000000000000" step="0.01" required>
             <div class="microGrid">
               <div>
                 <label>Food cost %</label>
-                <input name="foodCost" type="number" min="0" max="100" required>
+                <input name="foodCost" type="number" min="0" max="100" step="0.01" required>
               </div>
               <div>
-                <label>Gross profit %</label>
-                <input name="grossProfit" type="number" min="0" max="100" required>
+                <label>Gross margin %</label>
+                <input name="grossProfit" type="number" min="-100" max="100" step="0.01" required>
               </div>
             </div>
             <details class="advanced">
-              <summary>Add advanced cost inputs for sharper accuracy</summary>
+              <summary>Add optional cost details</summary>
               <div class="advancedBody">
                 <div class="microGrid">
                   <div>
                     <label>Labour cost %</label>
-                    <input name="labourCost" type="number" min="0" max="100" placeholder="Example: 22">
+                    <input name="labourCost" type="number" step="0.01" min="0" max="100" placeholder="Example: 22">
                   </div>
                   <div>
                     <label>Rent % of revenue</label>
-                    <input name="rentPercent" type="number" min="0" max="100" placeholder="Example: 12">
+                    <input name="rentPercent" type="number" step="0.01" min="0" max="100" placeholder="Example: 12">
                   </div>
                 </div>
                 <div class="microGrid">
                   <div>
                     <label>Delivery commission %</label>
-                    <input name="deliveryCommission" type="number" min="0" max="100" placeholder="If applicable">
+                    <input name="deliveryCommission" type="number" step="0.01" min="0" max="100" placeholder="If applicable">
                   </div>
                   <div>
                     <label>Monthly wastage estimate</label>
-                    <input name="wastageEstimate" type="number" min="0" placeholder="Amount or best guess">
+                    <input name="wastageEstimate" type="number" step="0.01" min="0" placeholder="Amount or best guess">
                   </div>
                 </div>
               </div>
@@ -731,7 +710,7 @@
           </div>
 
           <div class="sectionBlock">
-            <h3><span>04</span> Menu Engineering Audit</h3>
+            <h3><span>03</span> Menu Engineering Audit</h3>
             <div class="microGrid">
               <div>
                 <label>Total menu items</label>
@@ -773,7 +752,7 @@
           </div>
 
           <div class="sectionBlock">
-            <h3><span>05</span> Operations, Team & Reputation</h3>
+            <h3><span>04</span> Operations, Team & Reputation</h3>
             <div class="microGrid">
               <div>
                 <label>Who runs the kitchen day to day?</label>
@@ -844,12 +823,13 @@
             </select>
             <label>Google / Zomato / Yelp link</label>
             <input name="reviewLink" placeholder="Paste any public review link">
-            <label>Describe the biggest problem in your own words</label>
+            <label>Describe the biggest problem in your own words. Leave out names and contact details.</label>
             <textarea name="problem" required></textarea>
           </div>
 
           <div class="submitArea">
-            <p class="fine">Your diagnosis is stored privately in Chef Amey's dashboard so the follow-up can be specific, not generic.</p>
+            <p class="fine">You can see your results before deciding whether to share them with Chef Amey.</p>
+            <p id="diagnosisError" class="notice hidden" role="alert"></p>
             <button id="submitBtn" type="submit">Run Restaurant MRI</button>
           </div>
         </form>
@@ -862,7 +842,7 @@
         </div>
         <div class="resultBody">
           <div id="emptyState" class="emptyState">
-            <p class="lead">RestroRx will identify the likely leak, the first fix to prioritise, and the action path to stabilise profit and repeat customers.</p>
+            <p class="lead">Your answers help identify where to look first and which operating measures to track.</p>
             <div class="emptyTiles">
               <div class="emptyTile"><span>Find</span><strong>Money leaks</strong></div>
               <div class="emptyTile"><span>Prioritise</span><strong>First fix</strong></div>
@@ -871,7 +851,7 @@
             </div>
           </div>
 
-          <div id="result" class="result hidden">
+          <div id="result" class="result hidden" tabindex="-1" aria-label="Diagnostic result">
             <div class="scoreRow">
               <div class="score" id="score">--</div>
               <div>
@@ -881,7 +861,7 @@
             </div>
             <h3>Dimension Scores</h3>
             <div id="bars" class="bars"></div>
-            <h3>Risk MRI</h3>
+            <h3>Signals to Review</h3>
             <div class="riskGrid" id="riskGrid"></div>
             <h3>Fix This First</h3>
             <p id="firstIntervention"></p>
@@ -893,16 +873,42 @@
             <ul id="plan"></ul>
             <h3>Chef Amey Note</h3>
             <p id="chefNote"></p>
+            <details class="advanced">
+              <summary>How the screening score works</summary>
+              <div class="advancedBody">
+                <p>Points are deducted from 82 for food cost above 30%, gross margin below 35%, labour above 32%, rent above 12%, menu size over 45 items and a rating below 4.2. Partial or missing recipe costing and written procedures also reduce the score. These cut-offs are RestroRX screening rules. They can be used to prioritise a closer look.</p>
+                <p>Scores from 72 are Healthy, 50–71 are Watch Zone and below 50 are Critical. Dimension scores are shown when there is enough relevant input.</p>
+              </div>
+            </details>
             <div class="ctaRow">
-              <button class="secondary" id="unlockCx" type="button">Add Customer Journey Audit</button>
-              <a id="bookLink" class="whatsapp" target="_blank" rel="noreferrer">Book on WhatsApp</a>
+              <button id="openEnquiry" type="button">Request a Consultation</button>
+              <a class="whatsapp" href="https://wa.me/918806808949" target="_blank" rel="noreferrer">Contact on WhatsApp</a>
             </div>
-            <div id="saveStatus" class="notice hidden">Diagnosis saved to Chef Amey's private dashboard.</div>
+            <form id="enquiryForm" method="post" action="/api/leads" class="sectionBlock hidden">
+              <h3>Share your results with Chef Amey</h3>
+              <label for="ownerName">Your name</label>
+              <input id="ownerName" name="ownerName" autocomplete="name" maxlength="100" required>
+              <label for="restaurantName">Restaurant name</label>
+              <input id="restaurantName" name="restaurantName" autocomplete="organization" maxlength="140" required>
+              <label for="location">City / location</label>
+              <input id="location" name="location" autocomplete="address-level2" maxlength="140" required>
+              <p class="fine">Provide at least one way for Chef Amey to reply.</p>
+              <label for="email">Email</label>
+              <input id="email" name="email" type="email" autocomplete="email" maxlength="254">
+              <label for="phone">WhatsApp number with country code</label>
+              <input id="phone" name="phone" type="tel" autocomplete="tel" maxlength="32" placeholder="+91 or +1">
+              <div hidden><label>Leave this blank <input name="website" tabindex="-1" autocomplete="off"></label></div>
+              <label class="consent"><input name="consent" type="checkbox" required> Chef Amey may review my answers and contact me about this enquiry.</label>
+              <p id="enquiryError" class="notice hidden" role="alert"></p>
+              <button id="enquiryBtn" type="submit">Send Enquiry</button>
+            </form>
+            <p id="saveStatus" class="notice hidden" role="status">Enquiry received. Chef Amey can review your results and follow up.</p>
+            <button class="secondary hidden" id="unlockCx" type="button">Add Customer Journey Audit</button>
           </div>
 
           <div id="cxPanel" class="hidden">
             <h2>Stage 2: Customer Journey Audit</h2>
-            <form id="cxForm">
+            <form id="cxForm" method="post" action="/api/leads">
               <label>Is every guest greeted within 30 seconds?</label>
               <select name="greeting"><option>Warm</option><option>Average</option><option>Poor</option></select>
               <label>Washroom upkeep</label>
@@ -925,7 +931,8 @@
               <select name="cirBalance"><option>Yes, 80% core and 20% innovation</option><option>We change often but consistency suffers</option><option>We are consistent but not exciting</option><option>We are not sure who our customer is</option></select>
               <label>What do customers complain about most?</label>
               <textarea name="cxProblem"></textarea>
-              <button type="submit">Save CX Audit</button>
+              <p id="cxStatus" class="notice hidden" role="status"></p>
+              <button id="cxBtn" type="submit">Save CX Audit</button>
             </form>
           </div>
         </div>
@@ -933,15 +940,15 @@
     </div>
   </main>
 
-  <script type="module">
-    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-    const SUPABASE_URL = "https://dduiwrznrzmimqvmrcdg.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkdWl3cnpucnptaW1xdm1yY2RnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1MjY5NjAsImV4cCI6MjA5NDEwMjk2MH0.1-rjDnGkykflVZWnaHLGk1-b_oFqP1LX4dwb3Ro9IpY";
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    let currentLeadId = null;
-    let currentPayload = null;
-    let currentDiagnosis = null;
+  <script>
+    const byId = (id) => document.getElementById(id);
+    const diagnosisButton = byId("submitBtn");
+    const enquiryForm = byId("enquiryForm");
+    const openEnquiry = byId("openEnquiry");
+    const cxPanel = byId("cxPanel");
+    const unlockCx = byId("unlockCx");
+    let currentResult = null;
+    let savedEnquiry = null;
 
     const countrySelect = document.getElementById("country");
     const marketBadge = document.getElementById("marketBadge");
@@ -979,31 +986,32 @@
       const bars = document.getElementById("bars");
       bars.innerHTML = "";
       Object.entries(labels).forEach(([key, label]) => {
-        const value = Math.round(Number(dimensions?.[key] || 0));
+        const value = dimensions[key];
         const row = document.createElement("div");
         row.className = "barLine";
-        row.innerHTML = `<span>${label}</span><div class="track"><div class="fill" style="width:${value}%"></div></div><strong>${value}</strong>`;
+        row.innerHTML = `<span>${label}</span><div class="track"><div class="fill" style="width:${value ?? 0}%"></div></div><strong>${value ?? "—"}</strong>`;
         bars.appendChild(row);
       });
     }
 
     function renderRisks(diagnosis) {
       const risks = [
-        ["Profit Leakage", diagnosis.profitLeakageScore ? `${diagnosis.profitLeakageScore}/100` : "--"],
-        ["Menu Complexity", diagnosis.menuComplexityRisk || "--"],
-        ["Owner Readiness", diagnosis.ownerReadinessScore ? `${diagnosis.ownerReadinessScore}/100` : "--"],
-        ["Team Dependence", diagnosis.teamDependenceRisk || "--"],
-        ["Customer Return", diagnosis.customerReturnRisk || "--"],
-        ["Priority", diagnosis.status || "--"]
+        ["Menu Complexity", diagnosis.menuComplexityRisk ?? "Needs input"],
+        ["Team Dependence", diagnosis.teamDependenceRisk],
+        ["Screening Status", diagnosis.status]
       ];
-      const grid = document.getElementById("riskGrid");
-      grid.innerHTML = "";
-      risks.forEach(([label, value]) => {
+      const grid = byId("riskGrid");
+      grid.replaceChildren();
+      for (const [label, value] of risks) {
         const box = document.createElement("div");
+        const name = document.createElement("span");
+        const result = document.createElement("strong");
         box.className = "riskBox";
-        box.innerHTML = `<span>${label}</span><strong>${value}</strong>`;
+        name.textContent = label;
+        result.textContent = value;
+        box.append(name, result);
         grid.appendChild(box);
-      });
+      }
     }
 
     function renderDiagnosis(diagnosis) {
@@ -1019,77 +1027,109 @@
       list(document.getElementById("plan"), diagnosis.plan);
       renderBars(diagnosis.dimensions);
       renderRisks(diagnosis);
-      const text = encodeURIComponent(`Hi Chef Amey, I completed RestroRx for ${currentPayload.restaurantName} in ${currentPayload.location}. My score is ${diagnosis.score}. I want to discuss a consultation.`);
-      document.getElementById("bookLink").href = `https://wa.me/918806808949?text=${text}`;
     }
 
-    async function saveLead(payload, diagnosis) {
-      const record = {
-        owner_name: payload.ownerName,
-        phone: payload.phone,
-        email: payload.email,
-        restaurant_name: payload.restaurantName,
-        location: payload.location,
-        country: payload.market,
-        monthly_revenue: Number(payload.monthlyRevenue || 0),
-        food_cost: Number(payload.foodCost || 0),
-        gross_profit: Number(payload.grossProfit || 0),
-        rating: Number(payload.rating || 0),
-        input_data: payload,
-        diagnosis,
-        score: Number(diagnosis.score || 0),
-        status: diagnosis.status || "Watch Zone"
-      };
-      const { data, error } = await supabase.from("leads").insert(record).select("id").single();
-      if (error) {
-        throw new Error(`Diagnosis shown, but lead was not saved to Supabase: ${error.message}`);
-      }
-      if (!data?.id) {
-        throw new Error("Diagnosis shown, but Supabase did not return a lead ID.");
-      }
-      currentLeadId = data.id;
-      return data.id;
+    function showMessage(id, message) {
+      const element = byId(id);
+      element.textContent = message;
+      element.classList.toggle("hidden", !message);
     }
 
-    document.getElementById("diagnosisForm").addEventListener("submit", async (event) => {
+    async function submitJson(url, method, payload, errorMessage) {
+      const response = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.ok) throw new Error(data.error || errorMessage);
+      return data;
+    }
+
+    byId("diagnosisForm").addEventListener("submit", async (event) => {
       event.preventDefault();
-      const button = document.getElementById("submitBtn");
-      button.disabled = true;
-      button.textContent = "Diagnosing...";
-      currentPayload = { ...formToObject(event.currentTarget), market: detectMarket() };
-
+      currentResult = null;
+      savedEnquiry = null;
+      enquiryForm.reset();
+      byId("cxForm").reset();
+      for (const id of ["result", "enquiryForm", "saveStatus", "cxPanel", "unlockCx"]) byId(id).classList.add("hidden");
+      for (const id of ["diagnosisError", "enquiryError", "cxStatus"]) showMessage(id, "");
+      byId("emptyState").classList.remove("hidden");
+      openEnquiry.classList.remove("hidden");
+      const { country, ...input } = formToObject(event.currentTarget);
+      input.market = detectMarket();
+      diagnosisButton.disabled = true;
+      diagnosisButton.textContent = "Diagnosing…";
       try {
-        const response = await fetch("/api/diagnose", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(currentPayload)
-        });
-        const data = await response.json();
-        if (!data.ok || !data.diagnosis) throw new Error(data.error || "Diagnosis failed");
-        currentDiagnosis = data.diagnosis;
-        renderDiagnosis(currentDiagnosis);
-        await saveLead(currentPayload, currentDiagnosis);
-        document.getElementById("saveStatus").classList.remove("hidden");
+        const data = await submitJson("/api/diagnose", "POST", input, "The diagnostic could not run.");
+        if (!data.diagnosis) throw new Error("The diagnostic could not run.");
+        currentResult = { input, submissionKey: crypto.randomUUID() };
+        renderDiagnosis(data.diagnosis);
+        byId("result").focus({ preventScroll: true });
+        byId("result").scrollIntoView({ block: "start" });
       } catch (error) {
-        alert(error.message);
+        showMessage("diagnosisError", error instanceof TypeError ? "Connection interrupted. Please try again." : error.message);
+      } finally {
+        diagnosisButton.disabled = false;
+        diagnosisButton.textContent = "Run Restaurant MRI";
+      }
+    });
+
+    openEnquiry.addEventListener("click", () => {
+      enquiryForm.classList.remove("hidden");
+      byId("ownerName").focus();
+    });
+
+    enquiryForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (!currentResult || savedEnquiry) return;
+      const button = byId("enquiryBtn");
+      const contact = formToObject(enquiryForm);
+      button.disabled = true;
+      diagnosisButton.disabled = true;
+      showMessage("enquiryError", "");
+      button.textContent = "Sending…";
+      try {
+        const data = await submitJson("/api/leads", "POST", { ...currentResult, contact }, "The enquiry could not be saved.");
+        if (!data.id || !data.updateToken) throw new Error("The enquiry could not be confirmed. Please retry.");
+        savedEnquiry = { id: data.id, updateToken: data.updateToken };
+        enquiryForm.classList.add("hidden");
+        openEnquiry.classList.add("hidden");
+        byId("saveStatus").classList.remove("hidden");
+        unlockCx.classList.remove("hidden");
+      } catch (error) {
+        showMessage("enquiryError", error instanceof TypeError ? "Connection interrupted. Please retry to confirm your enquiry." : error.message);
       } finally {
         button.disabled = false;
-        button.textContent = "Run Restaurant MRI";
+        diagnosisButton.disabled = false;
+        button.textContent = "Send Enquiry";
       }
     });
 
-    document.getElementById("unlockCx").addEventListener("click", () => {
-      document.getElementById("cxPanel").classList.remove("hidden");
-      document.getElementById("cxPanel").scrollIntoView({ behavior: "smooth" });
+    unlockCx.addEventListener("click", () => {
+      cxPanel.classList.remove("hidden");
+      cxPanel.scrollIntoView({ behavior: "smooth" });
     });
 
-    document.getElementById("cxForm").addEventListener("submit", async (event) => {
+    byId("cxForm").addEventListener("submit", async (event) => {
       event.preventDefault();
+      if (!savedEnquiry) return;
+      const button = byId("cxBtn");
       const cx = formToObject(event.currentTarget);
-      if (currentLeadId) {
-        await supabase.from("leads").update({ cx_data: cx }).eq("id", currentLeadId);
+      button.disabled = true;
+      diagnosisButton.disabled = true;
+      showMessage("cxStatus", "");
+      button.textContent = "Saving…";
+      try {
+        await submitJson("/api/leads", "PATCH", { ...savedEnquiry, cx }, "The audit could not be saved.");
+        showMessage("cxStatus", "Customer journey audit saved.");
+      } catch (error) {
+        showMessage("cxStatus", error instanceof TypeError ? "Connection interrupted. Please retry to confirm your audit." : error.message);
+      } finally {
+        button.disabled = false;
+        diagnosisButton.disabled = false;
+        button.textContent = "Save CX Audit";
       }
-      alert("CX audit saved. Chef Amey can now see the deeper customer journey data.");
     });
   </script>
 </body>

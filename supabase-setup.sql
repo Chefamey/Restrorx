@@ -1,3 +1,5 @@
+begin;
+
 create table if not exists public.leads (
   id uuid primary key default gen_random_uuid(),
   created_at timestamptz default now(),
@@ -24,23 +26,23 @@ create table if not exists public.leads (
   cx_data jsonb
 );
 
+-- Restore the optional detail columns for databases created with the earlier schema.
+alter table public.leads
+  add column if not exists profit_leakage_score numeric,
+  add column if not exists menu_complexity_risk text,
+  add column if not exists owner_readiness_score numeric,
+  add column if not exists team_dependence_risk text,
+  add column if not exists customer_return_risk text,
+  add column if not exists first_intervention text;
+
 alter table public.leads enable row level security;
+alter table public.leads force row level security;
 
 drop policy if exists "allow_public_insert_leads" on public.leads;
-create policy "allow_public_insert_leads"
-on public.leads for insert
-to anon
-with check (true);
-
 drop policy if exists "allow_public_update_leads" on public.leads;
-create policy "allow_public_update_leads"
-on public.leads for update
-to anon
-using (true)
-with check (true);
-
 drop policy if exists "allow_public_read_leads" on public.leads;
-create policy "allow_public_read_leads"
-on public.leads for select
-to anon
-using (true);
+
+revoke all on table public.leads from public, anon, authenticated;
+grant select, insert, update on table public.leads to service_role;
+
+commit;
