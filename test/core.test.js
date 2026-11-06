@@ -24,11 +24,14 @@ process.env.LEAD_UPDATE_SECRET = "synthetic-signing-secret";
 process.env.SUPABASE_URL = "https://supabase.example.test";
 process.env.SUPABASE_SERVICE_ROLE_KEY = "synthetic-service-key";
 
-async function call(handler, method, body, authorization) {
+let ipIndex = 1;
+
+async function call(handler, method, body, authorization, requestHeaders = {}, ip = `192.0.2.${ipIndex++}`) {
   const headers = {};
   const req = {
     method, body,
-    headers: { authorization, "content-type": "application/json", "x-forwarded-for": randomUUID() }
+    socket: { remoteAddress: ip },
+    headers: { authorization, "content-type": "application/json", ...requestHeaders }
   };
   let result;
   const res = {
@@ -130,9 +133,39 @@ test("both admin endpoints deny unauthenticated requests before storage access",
   assert.equal((await call(adminLeads, "GET", null, "Basic " + Buffer.from("invalid").toString("base64"))).status, 401);
   const html = await call(admin, "GET", null, authorization);
   assert.equal(html.status, 200);
-  assert.match(html.value, /\/api\/admin-leads/);
+  assert.match(html.value, /\/assets\/dashboard\.js/);
   assert.doesNotMatch(html.value, /supabase\.co|synthetic-admin-password/);
   const data = await call(adminLeads, "GET", null, authorization);
   assert.equal(data.status, 200);
   assert.equal(data.body.leads[0].id, stored.body.id);
+});
+
+test("browser cross-site writes are denied and admin requests are rate limited", async (t) => {
+  t.mock.method(globalThis, "fetch", () => { assert.fail("denied requests must never reach storage"); });
+  const foreignSite = { "sec-fetch-site": "cross-site" };
+  assert.equal((await call(diagnose, "POST", input, null, foreignSite)).status, 403);
+  assert.equal((await call(leads, "POST", { input, contact }, null, foreignSite)).status, 403);
+  assert.equal((await call(leads, "PATCH", {}, null, foreignSite)).status, 403);
+
+  const ip = "198.51.100.25";
+  for (let attempt = 0; attempt < 20; attempt++) {
+    const spoofed = { "x-forwarded-for": `192.0.2.${attempt + 1}` };
+    assert.equal((await call(admin, "GET", null, null, spoofed, ip)).status, 401);
+  }
+  const limited = await call(adminLeads, "GET", null, null, {}, ip);
+  assert.equal(limited.status, 429);
+  assert.equal(limited.headers["retry-after"], "60");
+});
+
+test("Supabase server credentials stay in the supported headers and are never forwarded on redirects", async (t) => {
+  const { request } = require("../lib/supabase");
+  process.env.SUPABASE_SECRET_KEY = "sb_secret_synthetic";
+  t.after(() => { delete process.env.SUPABASE_SECRET_KEY; });
+  t.mock.method(globalThis, "fetch", async (_url, options) => {
+    assert.equal(options.headers.apikey, "sb_secret_synthetic");
+    assert.equal(options.headers.Authorization, undefined);
+    assert.equal(options.redirect, "error");
+    return Response.json([]);
+  });
+  assert.deepEqual(await request("leads?select=id"), []);
 });

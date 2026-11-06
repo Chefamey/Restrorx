@@ -1,4 +1,4 @@
-const { allowRequest, parseBody, sendJson } = require("../lib/http");
+const { allowRequest, parseBody, rejectCrossSite, sendJson } = require("../lib/http");
 const { validateInput } = require("../lib/validation");
 const { diagnose } = require("../lib/diagnosis");
 
@@ -7,6 +7,7 @@ module.exports = function handler(req, res) {
     return sendJson(res, 200, { ok: true, message: "RestroRx API is reachable. Use POST for diagnosis." });
   }
   if (req.method !== "POST") return sendJson(res, 405, { ok: false, error: "Method not allowed." });
+  if (rejectCrossSite(req, res)) return;
   if (!allowRequest(req, "diagnose", 10)) {
     return sendJson(res, 429, { ok: false, error: "Too many attempts. Please try again in a few minutes." });
   }

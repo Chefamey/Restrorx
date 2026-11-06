@@ -1,5 +1,5 @@
 const crypto = require("node:crypto");
-const { allowRequest, parseBody, safeEqual, sendJson } = require("../lib/http");
+const { allowRequest, parseBody, rejectCrossSite, safeEqual, sendJson } = require("../lib/http");
 const { request } = require("../lib/supabase");
 const { cleanText, validateInput, validateContact } = require("../lib/validation");
 const { diagnose } = require("../lib/diagnosis");
@@ -24,6 +24,7 @@ function cleanCx(raw) {
 
 module.exports = async function handler(req, res) {
   if (!["POST", "PATCH"].includes(req.method)) return sendJson(res, 405, { ok: false, error: "Method not allowed." });
+  if (rejectCrossSite(req, res)) return;
   if (!allowRequest(req, "leads", 14)) return sendJson(res, 429, { ok: false, error: "Too many attempts. Please try again later." });
 
   let body;
