@@ -1,5 +1,5 @@
 const assert = require("node:assert/strict");
-const { createHash, randomUUID } = require("node:crypto");
+const { pbkdf2Sync, randomUUID } = require("node:crypto");
 const { test } = require("node:test");
 const diagnose = require("../api/diagnose");
 const leads = require("../api/leads");
@@ -19,7 +19,9 @@ const contact = {
 };
 const secret = "synthetic-admin-password";
 process.env.ADMIN_USER = "synthetic-admin";
-process.env.ADMIN_PASSWORD_HASH = createHash("sha256").update(secret).digest("hex");
+const salt = Buffer.from("0123456789abcdef0123456789abcdef", "hex");
+const verifier = pbkdf2Sync(secret, salt, 600000, 32, "sha256").toString("hex");
+process.env.ADMIN_PASSWORD_HASH = `pbkdf2-sha256$600000$${salt.toString("hex")}$${verifier}`;
 process.env.LEAD_UPDATE_SECRET = "synthetic-signing-secret";
 process.env.SUPABASE_URL = "https://supabase.example.test";
 process.env.SUPABASE_SERVICE_ROLE_KEY = "synthetic-service-key";
@@ -168,4 +170,11 @@ test("Supabase server credentials stay in the supported headers and are never fo
     return Response.json([]);
   });
   assert.deepEqual(await request("leads?select=id"), []);
+});
+
+test("admin rejects an obsolete unsalted password verifier", async (t) => {
+  const configured = process.env.ADMIN_PASSWORD_HASH;
+  process.env.ADMIN_PASSWORD_HASH = "0".repeat(64);
+  t.after(() => { process.env.ADMIN_PASSWORD_HASH = configured; });
+  assert.equal((await call(admin, "GET")).status, 503);
 });

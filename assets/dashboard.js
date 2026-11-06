@@ -39,7 +39,7 @@ function renderRows() {
     const email = String(lead.email || "");
     const links = [
       phone && `<a target="_blank" rel="noreferrer" href="https://wa.me/${phone}?text=${msg}">WhatsApp</a>`,
-      email && `<a href="mailto:${encodeURIComponent(email).replace("%40", "@")}">Email</a>`
+      email && `<a href="mailto:${encodeURIComponent(email).replaceAll("%40", "@")}">Email</a>`
     ].filter(Boolean);
     const tr = document.createElement("tr");
     tr.innerHTML = `

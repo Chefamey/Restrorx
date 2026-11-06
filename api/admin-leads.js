@@ -2,7 +2,7 @@ const { requireAdmin, sendJson } = require("../lib/http");
 const { request } = require("../lib/supabase");
 
 module.exports = async function handler(req, res) {
-  if (!requireAdmin(req, res)) return;
+  if (!(await requireAdmin(req, res))) return;
   if (req.method !== "GET") return sendJson(res, 405, { ok: false, error: "Method not allowed." });
   try {
     const params = new URLSearchParams({

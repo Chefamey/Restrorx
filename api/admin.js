@@ -2,8 +2,8 @@ const fs = require("fs");
 const path = require("path");
 const { requireAdmin } = require("../lib/http");
 
-module.exports = function handler(req, res) {
-  if (!requireAdmin(req, res)) return;
+module.exports = async function handler(req, res) {
+  if (!(await requireAdmin(req, res))) return;
   if (req.method !== "GET") {
     res.statusCode = 405;
     return res.end("Method not allowed");
